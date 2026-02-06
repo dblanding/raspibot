@@ -159,6 +159,12 @@ doug@raspibot:~/robot $ uv run python tests/rplidar_test.py
 10: Got 107 measurments
 11: Got 105 measurments
 ```
+* Demonstrate the lidar with the robot inside the arena
+    * Add code to *otos_test.py* that saves the 10 scans to a pickle file *data.pkl* in the *robot/* folder on raspibot.
+    * from the laptop, run `scp doug@raspibot.local:robot/data.pkl .` to retrieve the scans.
+    * On the laptop, run the file *display_lidar.py*, which loads the data and displays it.
+        * The image below is *just the last of 10 scans*.
+![Arena lidar map](desktop_code/arena_lidar_map.png)
 
 ## Set up Odometry Sensor
 * Run `i2cdetect -y -r 1`
@@ -173,11 +179,5 @@ doug@raspibot:~/robot $ uv run python tests/rplidar_test.py
         * `uv add sparkfun-qwiic-i2c`
         * run `uv run python tests/otos_test.py`
     * It works!
-* Demonstrate the lidar with the robot inside the arena
-    * Add code to *otos_test.py* that saves the 10 scans to a pickle file *data.pkl* in the *robot/* folder on raspibot.
-    * from the laptop, run `scp doug@raspibot.local:robot/data.pkl .` to retrieve the scans.
-    * On the laptop, run the file *display_lidar.py*, which loads the data and displays it.
-        * The image below is *just the last of 10 scans*.
-![Arena lidar map](desktop_code/arena_lidar_map.png)
 * To do: Calibrate the OTOS per instructions on [Adafruit video](https://www.youtube.com/watch?v=WSELKAIJeFk&t=4s).
 
