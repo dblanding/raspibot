@@ -1,6 +1,6 @@
-# Goals for the RaspiBot
-* Will use a Raspberry Pi SBC configured with pyinfra, using the services/MQTT paradigm from LRP3
-* Will *repurpose* the chassis and RasPi from my old ROS robot
+# Notes on building the RaspiBot
+* Use a Raspberry Pi SBC configured with pyinfra, using the services/MQTT paradigm from LRP3
+* *Repurpose* the chassis and RasPi 4 from my old ROS robot
 * Will do (roughly) what the picobot aimed to do:
     * Explore and map the house
     * Discover *canyons* wide enough to fit through
@@ -123,25 +123,18 @@ In chapter 4 of Danny Staple's book *Learn Robotics Programming (Version 3)*, he
 #### Referring to *LRP3 chapter 4* as a guide:
 * Create a *raspibot* folder on my laptop.
 * Run the command `uv init` from a terminal inside the *raspibot* folder.
-* Create a file named `inventory.py` listing the robot’s details in the *raspibot* folder.
-* Create a sub-folder named *robot* under *raspibot*.
+    * This initializes the folder as a *uv-managed Python project*, enabling the use of the `pyinfra` command, which has already been added system-wide as a *uv tool*.
+    * It also sets up the folder as a git repository
+* Create a file named `inventory.py` in the *raspibot* folder, listing the robot’s details.
+* Create a sub-folder named *robot* under *raspibot*. This will contain all the robot's python files.
 * Create another folder named *tests* under *robot*.
 * Create a file named *rplidar_test.py* under *tests* and copy the above example code into it.
-* From a terminal in the *raspibot* folder, run the command: `pyinfra inventory.py files.sync src=robot dest=robot`
+* From a terminal in the *raspibot* folder, run the command: `pyinfra inventory.py files.sync src=robot dest=robot -y`. This will create *robot/tests/rplidar_test.py* on the raspibot.
 * Now ssh to the robot `ssh doug@raspibot.local`
     * `cd robot`
-    * `uv add rplidar`
+    * `uv add rplidar-roboticia`
     * Run the command `uv run python tests/rplidar_test.py`
-    * Got `rplidar.RPLidarException: Descriptor length mismatch` errors and not able to resolve them
-
-## Try using a different Rplidar library
-* Follow instructions at this [RPLidar](https://github.com/Roboticia/RPLidar) A1 Python library
-* `uv remove rplidar`
-* `uv add rplidar-roboticia`
-* Still get the same error.
-
-## Try using a different Rplidar module
-* Swapped out the lidar module and this fixed it. That was likely the problem right along.
+    * Produced the following output
 ```
 doug@raspibot:~/robot $ uv run python tests/rplidar_test.py
 {'model': 24, 'firmware': (1, 29), 'hardware': 7, 'serialnumber': '92D5EE8BC8E792D6B1E39BF01B034C6C'}
@@ -159,11 +152,15 @@ doug@raspibot:~/robot $ uv run python tests/rplidar_test.py
 10: Got 107 measurments
 11: Got 105 measurments
 ```
-* Demonstrate the lidar with the robot inside the arena
-    * Add code to *otos_test.py* that saves the 10 scans to a pickle file *data.pkl* in the *robot/* folder on raspibot.
-    * from the laptop, run `scp doug@raspibot.local:robot/data.pkl .` to retrieve the scans.
+* Now place the robot inside the arena and display the scans.
+    * Edit *rplidar_test.py* code on laptop to save the 10 scans to a pickle file *data.pkl* in the *robot/* folder.
+    * Run `pyinfra inventory.py files.sync src=robot dest=robot -y` again to transfer the changes to raspibot.
+    * ssh to the robot `ssh doug@raspibot.local`
+        * `cd robot`
+        * Run the command `uv run python tests/rplidar_test.py`, to generate the file *robot/data.pkl* containing the scan data.
+    * From the laptop, run `scp doug@raspibot.local:robot/data.pkl .` to retrieve the scans.
     * On the laptop, run the file *display_lidar.py*, which loads the data and displays it.
-        * The image below is *just the last of 10 scans*.
+        * The image below is *just the last of the 10 scans*.
 ![Arena lidar map](desktop_code/arena_lidar_map.png)
 
 ## Set up Odometry Sensor
