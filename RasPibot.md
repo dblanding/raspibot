@@ -1,6 +1,6 @@
 # Notes on building the RaspiBot
 * Use a Raspberry Pi SBC configured with pyinfra, using the services/MQTT paradigm from LRP3
-* *Repurpose* the chassis and RasPi 4 from my old ROS robot
+* *Repurpose* the chassis and RasPi from my old ROS robot
 * Will do (roughly) what the picobot aimed to do:
     * Explore and map the house
     * Discover *canyons* wide enough to fit through
@@ -8,7 +8,7 @@
 * Will have these features:
     * 2 wheel differential drive
     * Lidar distance sensing (connected via Raspi USB)
-    * [Sparkfun Optical Tracking Odometry Sensor](https://www.sparkfun.com/products/24904) (connected via I2C) (Pico or Raspi?)
+    * [Sparkfun Optical Tracking Odometry Sensor](https://www.sparkfun.com/products/24904) (connected to Raspi I2C)
         * [YouTube video](https://www.youtube.com/watch?v=WcCNC8wExUc&t=120s) discusses calibration process
     * DC power provided by [Waveshare UPS Module 3S](https://www.amazon.com/waveshare-Uninterruptible-UPS-Module-3S/dp/B0BQC2WNR8/ref=ast_sto_dp_puis) (3x 18650 batts)
         * 3.7 * 3 = 11.1V for motors
@@ -45,7 +45,7 @@
 
 ## Set up pushbutton shutdown on Raspberry Pi
 * Pin 5 (GPIO3) is the default for shutdown and wake-up, but I plan to use that pin for I2C.
-* To implement a safe shutdown on a Raspberry Pi 3B+ using a GPIO pin other than Pin 5, connect a momentary button between your chosen GPIO pin (e.g., GPIO 26) and Ground (GND), then add `dtoverlay=gpio-shutdown,gpio_pin=26,active_low=1,debounce=3000` to /boot/config.txt, changing 26 to your pin's GPIO number to trigger a graceful shutdown when the button is pressed for about 3 seconds. This leverages the built-in gpio-shutdown overlay for simple hardware-based power management. 
+* To implement a safe shutdown on a Raspberry Pi 3B+ using a GPIO pin other than Pin 5, connect a momentary button between your chosen GPIO pin (e.g., GPIO 26) and Ground (GND), then add `dtoverlay=gpio-shutdown,gpio_pin=26,active_low=1,debounce=200` to /boot/config.txt, changing 26 to your pin's GPIO number to trigger a graceful shutdown when the button is pressed for about 3 seconds. This leverages the built-in gpio-shutdown overlay for simple hardware-based power management. 
 
 #### Hardware Setup 
 1. Choose Your Pin: Select any available GPIO pin (e.g. GPIO 26, which is physical pin 37). 
@@ -56,15 +56,15 @@
 1. Edit file `config.txt`: Open the configuration file with `sudo nano /boot/firmware/config.txt`. 
 2. Add the Overlay: Add the following line to the end of the file, replacing `26` with your chosen GPIO number (e.g., `gpio_pin=21` for GPIO 21): 
 
-`dtoverlay=gpio-shutdown,gpio_pin=26,active_low=1,debounce=300`
+`dtoverlay=gpio-shutdown,gpio_pin=26,active_low=1,debounce=200`
 
 * `gpio_pin=26`: Specifies your chosen GPIO. 
 * `active_low=1`: Assumes the button connects the pin to ground (pull-up is default). 
-* `debounce=300`: Waits 300ms (0.3 seconds) to prevent accidental triggers from button bounce. 
+* `debounce=200`: Waits 200ms (0.2 seconds) to prevent accidental triggers from button bounce. 
 
 3. Save and Reboot: Save the file (Ctrl+X, then Y, then Enter) and reboot your Raspberry Pi (`sudo reboot`).
 
-Now, pressing the button for about 0.3 seconds will initiate a graceful shutdown.
+Now, pressing the button for about 0.2 seconds will initiate a graceful shutdown.
 
 ## Set up program to monitor UPS
 * Hook up SDA and SCL pins on UPS to SDA & SCL pins on Raspberry Pi
@@ -91,9 +91,9 @@ Now, pressing the button for about 0.3 seconds will initiate a graceful shutdown
             * When I got this error on my laptop, I installed uv, so I will do that here.
         * Install uv with: `curl -LsSf https://astral.sh/uv/install.sh | sh`
         * Install rplidar with: `uv add rplidar`
-        * Create project directory with: `uv init robot`
-        * `cd robot`
-        * `uv add rplidar`
+        * Make `~` the uv project directory: `uv init`
+            * This will add a bunch of *uv* related files to *~*.
+        * Add the rplidar library with `uv add rplidar-roboticia`
 * Maybe now is a good time to use `pyinfra` to install the following simple example:
 ``` Python
 from rplidar import RPLidar
@@ -116,12 +116,10 @@ lidar.disconnect()
 ```
         
 ## Using `pyinfra` to manage the code on the (remote) raspibot
-In chapter 4 of Danny Staple's book *Learn Robotics Programming (Version 3)*, he shows how `pyinfra` can be used to keep all the code and configuration up-to-date on remote computers from the laptop. Since I have elected to use `uv` to configure the raspibot's python environment, this will cause me to do some things differently when it come to managing the configuration. Google AI explains the details about this process. Search: *using pyinfra to update and upgrade remote packages using uv*
-* I will put off until later using `pyinfra` to manage the raspibot's configuration.
-* To start, I will just use `pyinfra` to keep the files in sync on the raspibot.
+In chapter 4 of Danny Staple's book *Learn Robotics Programming (Version 3)*, he shows how `pyinfra` can be used to keep all the code and configuration up-to-date on remote computers from the laptop. (Just to be clear, since I have elected to install `uv` and set up my `~` directory as a *uv project*, I will continue to manage the *uv* environment directly via ssh, and will use *pyinfra* to maintain the code and the *apt* configuration on the raspibot.)
 
 #### Referring to *LRP3 chapter 4* as a guide:
-* Create a *raspibot* folder on my laptop.
+* **On my laptop**, create a *raspibot* folder. This will contain all the files for the project that are located on the laptop.
 * Run the command `uv init` from a terminal inside the *raspibot* folder.
     * This initializes the folder as a *uv-managed Python project*, enabling the use of the `pyinfra` command, which has already been added system-wide as a *uv tool*.
     * It also sets up the folder as a git repository
@@ -131,12 +129,10 @@ In chapter 4 of Danny Staple's book *Learn Robotics Programming (Version 3)*, he
 * Create a file named *rplidar_test.py* under *tests* and copy the above example code into it.
 * From a terminal in the *raspibot* folder, run the command: `pyinfra inventory.py files.sync src=robot dest=robot -y`. This will create *robot/tests/rplidar_test.py* on the raspibot.
 * Now ssh to the robot `ssh doug@raspibot.local`
-    * `cd robot`
-    * `uv add rplidar-roboticia`
-    * Run the command `uv run python tests/rplidar_test.py`
+    * Run the command `uv run python robot/tests/rplidar_test.py`
     * Produced the following output
 ```
-doug@raspibot:~/robot $ uv run python tests/rplidar_test.py
+doug@raspibot:~/robot $ uv run python robot/tests/rplidar_test.py
 {'model': 24, 'firmware': (1, 29), 'hardware': 7, 'serialnumber': '92D5EE8BC8E792D6B1E39BF01B034C6C'}
 ('Good', 0)
 0: Got 24 measurments
@@ -152,15 +148,12 @@ doug@raspibot:~/robot $ uv run python tests/rplidar_test.py
 10: Got 107 measurments
 11: Got 105 measurments
 ```
-* Now place the robot inside the arena and display the scans.
-    * Edit *rplidar_test.py* code on laptop to save the 10 scans to a pickle file *data.pkl* in the *robot/* folder.
-    * Run `pyinfra inventory.py files.sync src=robot dest=robot -y` again to transfer the changes to raspibot.
-    * ssh to the robot `ssh doug@raspibot.local`
-        * `cd robot`
-        * Run the command `uv run python tests/rplidar_test.py`, to generate the file *robot/data.pkl* containing the scan data.
-    * From the laptop, run `scp doug@raspibot.local:robot/data.pkl .` to retrieve the scans.
-    * On the laptop, run the file *display_lidar.py*, which loads the data and displays it.
-        * The image below is *just the last of the 10 scans*.
+* Next, edit *rplidar_test.py* code on laptop to save the 10 scans to a pickle file *~/data.pkl*.
+* Run `pyinfra inventory.py files.sync src=robot dest=robot -y` again to transfer the changes to raspibot.
+* With the robot placed inside the arena, run the rplidar_test script again (from ssh) to generate the file *~/data.pkl* containing the scan data.
+* From the laptop, run `scp doug@raspibot.local:data.pkl .` to retrieve the scans.
+* On the laptop, run the file *display_lidar.py*, which loads the data and displays it.
+    * The image below is *just the last of the 10 scans*.
 ![Arena lidar map](desktop_code/arena_lidar_map.png)
 
 ## Set up Odometry Sensor
@@ -172,9 +165,74 @@ doug@raspibot:~/robot $ uv run python tests/rplidar_test.py
         * *qwiic_otos.py*
     * sync with `pyinfra inventory.py files.sync src=robot dest=robot -y`
     * ssh to raspibot
-        * `cd robot`
-        * `uv add sparkfun-qwiic-i2c`
-        * run `uv run python tests/otos_test.py`
+        * Add the *sparkfun-qwiic-i2c* library: `uv add sparkfun-qwiic-i2c`
+        * run `uv run python robot/tests/otos_test.py`
     * It works!
 * To do: Calibrate the OTOS per instructions on [Adafruit video](https://www.youtube.com/watch?v=WSELKAIJeFk&t=4s).
+
+## Additional steps to setting up *pyinfra*
+#### Create a file for updating code, which we can keep for later.
+* Add a *deploy* directory, and create the file *deploy/update_code.py*
+``` python
+from pyinfra.operations import files
+
+files.sync(src="robot", dest="robot", delete=True, exclude=("*.pyc", "__pycache__"))
+```
+* This script will perform the sync, and also ensure certain files are excluded from it. This sends over any changed files in the robot folder, storing them in a robot folder on the Raspberry Pi. With *delete=True*, it will also handle files being renamed or removed.
+* Can now use the command `pyinfra inventory.py deploy/update_code.py` to update the code on the raspibot with any changes made to the code in the *robot* folder on the laptop.
+
+#### Updating *apt* packages on the raspibot
+* When you’ve installed Raspberry Pi OS on an SD card, the packages and package index can be out of date. It’s common to update them before installing other packages.
+* Create the file *deploy/update_packages.py* with the following:
+```
+from pyinfra.operations import apt
+
+apt.update(
+    name="Update apt cache",
+    _sudo=True,
+)
+
+apt.upgrade(
+    name="Upgrade all packages",
+    _sudo=True,
+)
+```
+* Can now use the command `pyinfra inventory.py deploy/update_packages.py` keep all the packages on the raspibot up to date.
+* Tested it. Took several minutes, but it seemed to work.
+
+#### Updating uv packages on the raspibot
+* Because I have chosen to use *uv* to manage the virtual environment on the raspibot, keeping the libraries in that environment up to date would require an additional script.
+* I created the file *deploy/update_uv_pkgs.py* on the laptop to do this. (I got this code from Google AI and it isn't guaranteed to work)
+* Unfortunately, I couldn't get it to work.
+```
+doug@HP-Laptop:~/Desktop/raspibot$ pyinfra inventory.py deploy/update_uv_pkgs.py
+--> Loading config...
+--> Loading inventory...
+--> Connecting to hosts...
+    [raspibot.local] Connected
+
+--> Preparing operation files...
+    Loading: deploy/update_uv_pkgs.py
+    [raspibot.local] Ready: deploy/update_uv_pkgs.py
+
+--> Detected changes:
+    Operation                                         Change               Conditional Change   
+    Upgrade all packages in the project environment   1 (raspibot.local)   -                    
+
+    Detected changes may not include every change pyinfra will execute.
+    Hidden side effects of operations may alter behaviour of future operations,
+    this will be shown in the results. The remote state will always be updated
+    to reflect the state defined by the input operations.
+
+    Detected changes displayed above, skip this step with -y
+                             
+--> Beginning operation run...
+--> Starting operation: Upgrade all packages in the project environment 
+    [raspibot.local] sh: 1: uv: not found
+    [raspibot.local] Error: executed 0 commands
+```
+* Here is a summary of my *uv* environment so far:
+    * `ssh doug@raspibot.local`
+        * `uv add rplidar-roboticia`
+        * `uv add sparkfun-qwiic-i2c`
 
