@@ -200,6 +200,10 @@ apt.upgrade(
 * Can now use the command `pyinfra inventory.py deploy/update_packages.py` keep all the packages on the raspibot up to date.
 * Tested it. Took several minutes, but it seemed to work.
 
+#### Update both packages and code
+* Create the file *deploy/deploy_all.py*
+* By running the `pyinfra inventory.py deploy/deploy_all.py -y`, both the packages and the code on the raspibot will be updated.
+
 #### Updating uv packages on the raspibot
 * Because I have chosen to use *uv* to manage the virtual environment on the raspibot, keeping the libraries in that environment up to date would require an additional script.
 * I created the file *deploy/update_uv_pkgs.py* on the laptop to do this. (I got this code from Google AI and it isn't guaranteed to work)
