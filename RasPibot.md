@@ -7,15 +7,17 @@
     * Find and follow a loop to return home.
 * Will have these features:
     * 2 wheel differential drive
-    * Lidar distance sensing (connected via Raspi USB)
+    * Slamtec RPLidar A1 distance sensing (connected via Raspi USB)
     * [Sparkfun Optical Tracking Odometry Sensor](https://www.sparkfun.com/products/24904) (connected to Raspi I2C)
         * [YouTube video](https://www.youtube.com/watch?v=WcCNC8wExUc&t=120s) discusses calibration process
     * DC power provided by [Waveshare UPS Module 3S](https://www.amazon.com/waveshare-Uninterruptible-UPS-Module-3S/dp/B0BQC2WNR8/ref=ast_sto_dp_puis) (3x 18650 batts)
-        * 3.7 * 3 = 11.1V for motors
-        * 5V for RasPi
+        * 3.7 * 3 = 11.1V supplied to [Waveshare motor driver board](https://www.amazon.com/Waveshare-Driver-Raspberry-Driving-Suitable/dp/B09D7MDL2C/ref=ast_sto_dp_puis) (which powers the onboard Pico)
+        * 5V power for Raspberry Pi
         * I2C battery monitoring using [INA219.py](https://drive.google.com/file/d/1rSbdvlRwfYJuLa_MSni0Q6e7lDZz0r6w/view)
-    * Wheel motors controlled by Pico through [Waveshare motor driver board](https://www.amazon.com/Waveshare-Driver-Raspberry-Driving-Suitable/dp/B09D7MDL2C/ref=ast_sto_dp_puis)
-    * Teleop control via BLE between Picos
+    * Wheel motors controlled by Raspberry Pi Pico directly.
+    * Teleop control via BLE between 2 Picos as described in this [BLE Joystick Controlled Mecanum Car](https://github.com/dblanding/BLE-Joystick-Controlled-Mecanum-Car) project.
+        * The driver station is the BLE server.
+        * The Pico on board the raspibot is the BLE client (using ony 2 axes).
     * [Raspi Shutdown](https://forums.raspberrypi.com/viewtopic.php?t=334857) via:
         1. Physical button switch
         2. Clickable button on webserver
@@ -90,10 +92,9 @@ Now, pressing the button for about 0.2 seconds will initiate a graceful shutdown
             * got the error: externally-managed-environment, This environment is externally managed
             * When I got this error on my laptop, I installed uv, so I will do that here.
         * Install uv with: `curl -LsSf https://astral.sh/uv/install.sh | sh`
-        * Install rplidar with: `uv add rplidar`
-        * Make `~` the uv project directory: `uv init`
+        * Install rplidar with: `uv add rplidar-roboticia`
+        * Set `~` as the uv project directory: `uv init`
             * This will add a bunch of *uv* related files to *~*.
-        * Add the rplidar library with `uv add rplidar-roboticia`
 * Maybe now is a good time to use `pyinfra` to install the following simple example:
 ``` Python
 from rplidar import RPLidar
