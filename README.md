@@ -13,3 +13,8 @@
     * From `ssh doug@raspibot.local`
         * `uv run python robot/tests/otos_test.py`
         * ctrl c to exit
+* Check status of (lidar) scanner service:
+    * From `ssh doug@raspibot.local`
+        * `systemctl status scanner`
+        * For more information, and to see its full log, use `journalctl -u scanner.service`
+
