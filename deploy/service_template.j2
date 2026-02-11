@@ -1,0 +1,12 @@
+[Unit]
+Description={{ service_name }}
+
+[Service]
+Type=simple
+Restart={{ restart }}
+WorkingDirectory=/home/{{ pi_user }}/
+ExecStart=/home/{{ pi_user }}/.local/bin/uv run python {{ command }}
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target

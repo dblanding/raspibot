@@ -236,8 +236,31 @@ doug@HP-Laptop:~/Desktop/raspibot$ pyinfra inventory.py deploy/update_uv_pkgs.py
     [raspibot.local] sh: 1: uv: not found
     [raspibot.local] Error: executed 0 commands
 ```
-* Here is a summary of my *uv* environment so far:
+* So I decided I would just continue to manage the uv package environment manually via ssh, as I have been doing.
+* Here is a summary of the *uv* environment so far:
     * `ssh doug@raspibot.local`
         * `uv add rplidar-roboticia`
         * `uv add sparkfun-qwiic-i2c`
 
+## Proposed idea for how to do mapping
+Here's the idea: When the raspibot powers up, 2 services will start:
+1. Scanner service
+    * This will start out in **sleep mode** with the scan motor off.
+    * It will respond to a trigger (a gpio pin pulled LOW) which will set it into **scan mode**
+2. Webserver service
+    * This will serve up a webpage with a **Start Mapping** button that arouses the scanner and starts the OTOS, and a **Stop Mapping** button that ends the program and returns the scanner to sleep mode.
+    * While scanning, the robot will build an OGM as it is driven around in Tele-op mode. The OGM can then be downloaded and displayed on the laptop.
+
+* Create file *robot/tests/gpio_test.py* to test the use of gpio as trigger.
+    * Hook up a switch between pin 11 (gpio 17) and adjacent pin 9 (ground)
+    * Test: `ssh doug@raspibot.local` then run `python robot/tests/gpio_test.py`
+
+## Add the systemD scanner service
+Chapter 7 of LRP3 shows how to create the services that will enable building the mapping behavior described above.
+
+* Create the file *deploy/service_template.j2* (minus the *After=mosquitto.service* line since I am not planning to use MQTT.)
+* Create the file *deploy/deploy_services.py*
+* Create the file *robot/scanner.py*
+    * Interestingly, whereas *gpio_test.py* was able to *import RPi.GPIO*, *scanner.py* (running under uv) was not.
+    * Had to add another uv library: `uv add RPi.GPIO` to get it to run.
+* Deploy the *scanner service* by running `pyinfra inventory.py deploy/deploy_services.py -y`
