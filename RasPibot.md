@@ -258,9 +258,27 @@ Here's the idea: When the raspibot powers up, 2 services will start:
 ## Add the systemD scanner service
 Chapter 7 of LRP3 shows how to create the services that will enable building the mapping behavior described above.
 
-* Create the file *deploy/service_template.j2* (minus the *After=mosquitto.service* line since I am not planning to use MQTT.)
+*lidar* Create the file *deploy/service_template.j2* (minus the *After=mosquitto.service* line since I am not planning to use MQTT.)
 * Create the file *deploy/deploy_services.py*
 * Create the file *robot/scanner.py*
     * Interestingly, whereas *gpio_test.py* was able to *import RPi.GPIO*, *scanner.py* (running under uv) was not.
     * Had to add another uv library: `uv add RPi.GPIO` to get it to run.
 * Deploy the *scanner service* by running `pyinfra inventory.py deploy/deploy_services.py -y`
+
+## Let's start down the the next rabbit hole by asking AI for advice on "python program that combines pose data with scan data to build and store an ogm"
+```
+This Python program demonstrates how to build a 2D Occupancy Grid Map (OGM) by combining Lidar scan data and robot pose () using Bresenham's line algorithm for ray tracing. The map is updated iteratively and stored as a NumPy array. 
+This program uses a OccupancyGridMap class to store the map as a 2D NumPy array, representing the probability of a cell being occupied. Key methods include world_to_map for converting coordinates and update_map for integrating sensor data and robot pose. The bresenham_line method is used for ray tracing. The final map can be saved using save_map. The code depends on numpy and matplotlib
+
+The full Python code for this OGM implementation can be found on GitHub. 
+
+This code provides a Python implementation for building a 2D occupancy grid map from robot pose and laser scan data. It includes an OccupancyGridMap class with methods for world-to-map coordinate conversion (world_to_map) and map updates (update_map) using Bresenham's line algorithm (bresenham) for ray tracing to determine free and occupied cells. The main section simulates robot poses and lidar scans to demonstrate map building and includes options for visualization and saving the resulting map. For use with real data, you would replace the simulated inputs with actual sensor readings. The full code implementation can be found at PythonRobotics GitHub and robotics.stackexchange.com. 
+```
+* The first reference: [Python Robotics](https://github.com/AtsushiSakai/PythonRobotics/blob/master/Mapping/lidar_to_grid_map/lidar_to_grid_map.py) shows a file *lidar_to_scan_map.py* that uses [Bresenham's line algorithm](https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm)
+* The second reference assumes we are in a ROS environment.
+* Maybe I should rephrase my query: "Explain how an efficient python program combines pose awareness with scan data to build an ogm."
+
+```
+An efficient Python program builds an Occupancy Grid Map (OGM) by transforming raw, body-frame LIDAR scan data into a global world coordinate system using accurate pose data, followed by updating a 2D matrix using probabilistic ray-tracing. This process is optimized using NumPy for vectorized coordinate transformations and Bresenham's line algorithm for efficient grid updates. 
+```
+
