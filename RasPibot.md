@@ -297,4 +297,31 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
         * `uv add sparkfun-qwiic-i2c`
         * `uv add RPi.GPIO`
         * `uv add paho-mqtt`
+#### Puzzling Problem: Now lidar data is no longer getting published !!! ???
+* I wrote a mapping script to run on my laptop and found that it wsn't able to connect with the MQTT broker on my Raspibot. I fiddled with the configuration a bit, trying to get it to allow connection from the network, but then it got even more broken. The subscriber command above stopped working.
+* Next, I did the following:
+    1. Ran `pyinfra inventory.py deploy/update_packages.py`
+    2. `uv remove paho-mqtt` (It removed all but a pycache file (lacked permission)
+    3. Tried to run `pip3 install paho-mqtt`, but it wouldn't let me do it without a venv
+    4. So I reinstalled using `uv add paho-mqtt`
+* And now it works again.
+
+#### But I still can't connect with the Mqtt broker running on the laptop
+* Run command: `mqttui -b mqtt://raspibot.local -u robot --password robot`
+    * Connection refused (os error 111): Failed to connect to the MQTT broker mqtt://raspibot.local
+* `ssh doug@raspibot.local`
+    * Add file */etc/mosquitto/conf.d/custom.conf* with 2 lines:
+    ```
+    listener 1883
+    allow_anonymous true
+    ```
+    * Restart service with `sudo service mosquitto restart`
+* Able to launch mqttui with: `mqttui -b mqtt://raspibot.local -u robot --password robot`
+    * But it didn't pick up any "lidar/data" messages.
+    * From the ssh terminal, I published `mosquitto_pub -t hello/robot -m "hello" -u robot  -P robot` and this showed up in mqttUI.
+    * Next I tried listening on the raspibot w/ `mosquitto_sub -t "lidar/#" -u robot -P robot -v` and now there is nothing there !!! ???
+    * Restart the service again `sudo service mosquitto restart`
+    * Still nothing on the local subscriber or on the laptop UI.
+* Restarted the raspibot and now I get the lidar data on the mqttUI, but only for a while. Tried again a few minutes later and I got nothing.
+![MQTTUI window](imgs/mqttui.png)
 
