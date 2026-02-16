@@ -323,5 +323,11 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
     * Restart the service again `sudo service mosquitto restart`
     * Still nothing on the local subscriber or on the laptop UI.
 * Restarted the raspibot and now I get the lidar data on the mqttUI, but only for a while. Tried again a few minutes later and I got nothing.
+
 ![MQTTUI window](imgs/mqttui.png)
+* Ah Ha!! I think it's a timeout error that occurs because nothing is geting published while the scanner is idle. When the broker doesn't receive any messages within the timeout interval, it just closes the connection.
+    * I revised the scanner code to publish lidar info every 5 seconds when it is idle.
+    * This seems to fix the problem.
+
+![MQTTUI window 2](imgs/mqttui2.png)
 

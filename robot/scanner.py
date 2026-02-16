@@ -11,6 +11,7 @@ GPIO.setup(INPUT_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 # MQTT Setup
 broker = "localhost"
 topic = "lidar/data"
+idle_topic = "lidar/info"
 mqtt_username = "robot"
 mqtt_password = "robot"
 client = mqtt.Client()
@@ -51,6 +52,9 @@ def run():
 def stop():
     lidar.stop()
     lidar.stop_motor()
+    payload = json.dumps(info)
+    client.publish(idle_topic, payload)
+
 
 if __name__ == '__main__':
     try:
@@ -58,7 +62,7 @@ if __name__ == '__main__':
             while GPIO.input(INPUT_PIN) == GPIO.LOW:
                 run()
             stop()
-            time.sleep(1)
+            time.sleep(5)
 
     except KeyboardInterrupt:
         print('Interrupted by user, stopping...')
