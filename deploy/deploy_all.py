@@ -1,1 +1,1 @@
-from deploy import update_packages, update_code
+from deploy import deploy_mqtt, update_code

@@ -243,32 +243,43 @@ doug@HP-Laptop:~/Desktop/raspibot$ pyinfra inventory.py deploy/update_uv_pkgs.py
         * `uv add sparkfun-qwiic-i2c`
 
 ## Proposed idea for how to do mapping
-Here's the idea: When the raspibot powers up, 2 services will start:
-1. Scanner service
-    * This will start out in **sleep mode** with the scan motor off.
+Several services will run on the RasPi
+1. MQTT
+    * This will start automatically when the RasPi powers up.
+2. Scanner service, publishing scan data via mqtt
+    * This will start automatically when the RasPi powers up. At first it will be in **sleep mode** with the scan motor off.
     * It will respond to a trigger (a gpio pin pulled LOW) which will set it into **scan mode**
-2. Webserver service
-    * This will serve up a webpage with a **Start Mapping** button that arouses the scanner and starts the OTOS, and a **Stop Mapping** button that ends the program and returns the scanner to sleep mode.
-    * While scanning, the robot will build an OGM as it is driven around in Tele-op mode. The OGM can then be downloaded and displayed on the laptop.
+    * Once started, it will publish scan data on topic "lidar/data"
+2. Odometry service, publishing pose data via mqtt
+3. Webserver service
+    * This will serve up a webpage with a **Start Scanning** button that starts the scanner sending scan data, and a **Stop Mapping** button that returns the scanner to sleep mode.
+4. While the robot is being tele-operated, the mapper can run *on the laptop*, subscribing to both the scanner topic and the odometry topic
 
+#### Set up MQTT to run on the Raspibot
+> In chapter 6 of LRP3, mqtt was introduced as a way for different programs to send data to each other. Although the topics and messages of the Raspibot will not be the same as those used in the LRP3 book, the installation and setup of MQTT should be the same.
+
+* Create file *deploy/deploy_mqtt.py*
+* Edit file *deploy/deploy_all.py*
+* Run command `pyinfra inventory.py deploy/deploy_all.py`
+
+#### Test out the idea of starting the scanner in *sleep mode* with the motor off and using a GPIO pin to trigger the motor to start and the sending of scan data.
 * Create file *robot/tests/gpio_test.py* to test the use of gpio as trigger.
     * Hook up a switch between pin 11 (gpio 17) and adjacent pin 9 (ground)
     * Test: `ssh doug@raspibot.local` then run `python robot/tests/gpio_test.py`
 
-## Add the systemD scanner service
-Chapter 7 of LRP3 shows how to create the services that will enable building the mapping behavior described above. Using a similar approach, create a scanner service that starts on powerup, but with the scan motor turned off. The service is *awakened* by pulling a GPIO pin *Low*.
+#### Add the systemD scanner service
+Chapter 7 of LRP3 shows how to create services that will start on powerup. Using a similar approach, create a scanner service that starts on powerup, with the scan motor initially turned off. When the service is *awakened* by pulling a GPIO pin *Low*, it publishes scan data  on the topic *lidar/data*.
 
-* Create the file *deploy/service_template.j2* (minus the *After=mosquitto.service* line since I am not planning to use MQTT.)
+* Create the file *deploy/service_template.j2*
 * Create the file *deploy/deploy_services.py*
 * Create the file *robot/scanner.py*
     * Interestingly, whereas *gpio_test.py* was able to *import RPi.GPIO*, *scanner.py* (running under uv) was not.
     * Had to add another uv library: `uv add RPi.GPIO` to get it to run.
+    * Also: `uv add paho-mqtt`
 * Deploy the *scanner service* by running `pyinfra inventory.py deploy/deploy_services.py -y`
+* Listen for data from scanner by first `ssh doug@raspibot.local`
+    * Then run command: `mosquitto_sub -t "lidar/#" -u robot -P robot -v`
+    * Got a flood of data. Here is just one scan:
 
-## Now I want to try out mapping onto an OGM, but I think I am going about it wrong.
-* I have tested running the scanner as a service and shown that it can
-    * Remain in *Idle mode* with its motor stopped
-    * Be triggered  awake by pulling the appropriate GPIO pin Low
-* But now I think I need to have a more *ROS-like* architecture, allowing sensors and process to send data to each other.
-* In the meanwhile, it might be fun to change the scanner service to a mapper, which can build and store an OGM, Just to test how my mapper works. The OGM can then be downloaded to my laptop and displayed.
-    * Now that I think about it, if I have mqtt in place, the mapper could probably run on the laptop.
+> lidar/data [{"a": 356.59, "d": 4070.0}, {"a": 357.97, "d": 4105.25}, {"a": 359.31, "d": 4137.5}, {"a": 0.67, "d": 4170.0}, {"a": 2.02, "d": 4208.75}, {"a": 21.94, "d": 543.5}, {"a": 23.47, "d": 527.5}, {"a": 24.92, "d": 512.5}, {"a": 26.19, "d": 499.5}, {"a": 27.75, "d": 486.75}, {"a": 34.16, "d": 297.75}, {"a": 34.84, "d": 292.0}, {"a": 36.53, "d": 287.0}, {"a": 38.75, "d": 282.0}, {"a": 39.39, "d": 277.25}, {"a": 40.81, "d": 273.0}, {"a": 43.11, "d": 269.25}, {"a": 44.45, "d": 265.5}, {"a": 45.28, "d": 262.25}, {"a": 46.88, "d": 259.5}, {"a": 48.42, "d": 256.5}, {"a": 49.5, "d": 253.75}, {"a": 51.73, "d": 251.25}, {"a": 53.75, "d": 249.0}, {"a": 54.3, "d": 247.0}, {"a": 54.73, "d": 245.0}, {"a": 57.08, "d": 243.0}, {"a": 57.89, "d": 241.25}, {"a": 60.08, "d": 240.0}, {"a": 60.8, "d": 238.75}, {"a": 63.56, "d": 237.75}, {"a": 63.19, "d": 237.0}, {"a": 66.31, "d": 236.25}, {"a": 67.67, "d": 235.5}, {"a": 68.91, "d": 234.75}, {"a": 69.52, "d": 234.25}, {"a": 73.69, "d": 209.0}, {"a": 75.8, "d": 206.0}, {"a": 77.16, "d": 203.5}, {"a": 78.75, "d": 200.75}, {"a": 79.86, "d": 198.75}, {"a": 81.22, "d": 196.75}, {"a": 82.58, "d": 195.0}, {"a": 83.94, "d": 193.25}, {"a": 85.3, "d": 191.25}, {"a": 86.64, "d": 189.5}, {"a": 88.02, "d": 188.25}, {"a": 89.36, "d": 186.75}, {"a": 90.72, "d": 185.5}, {"a": 92.06, "d": 184.25}, {"a": 93.42, "d": 183.5}, {"a": 94.78, "d": 183.0}, {"a": 96.14, "d": 182.25}, {"a": 97.5, "d": 181.25}, {"a": 98.84, "d": 181.0}, {"a": 100.2, "d": 180.5}, {"a": 101.56, "d": 180.0}, {"a": 102.92, "d": 180.25}, {"a": 123.19, "d": 181.0}, {"a": 124.55, "d": 182.0}, {"a": 125.89, "d": 183.0}, {"a": 127.25, "d": 184.25}, {"a": 128.61, "d": 185.25}, {"a": 129.95, "d": 186.25}, {"a": 131.31, "d": 188.0}, {"a": 191.91, "d": 439.0}, {"a": 193.22, "d": 437.0}, {"a": 194.56, "d": 443.25}, {"a": 195.81, "d": 450.0}, {"a": 197.2, "d": 457.0}, {"a": 198.42, "d": 465.0}, {"a": 199.75, "d": 473.0}, {"a": 201.22, "d": 481.25}, {"a": 202.58, "d": 490.5}, {"a": 203.73, "d": 500.75}, {"a": 204.95, "d": 511.25}, {"a": 206.28, "d": 522.0}, {"a": 207.48, "d": 534.0}, {"a": 208.89, "d": 546.5}, {"a": 210.16, "d": 560.75}, {"a": 211.45, "d": 575.5}, {"a": 212.83, "d": 590.75}, {"a": 214.09, "d": 607.5}, {"a": 215.31, "d": 625.5}, {"a": 216.64, "d": 644.25}, {"a": 251.16, "d": 524.25}, {"a": 252.48, "d": 520.0}, {"a": 255.3, "d": 507.0}, {"a": 256.84, "d": 508.75}, {"a": 257.97, "d": 510.25}, {"a": 259.42, "d": 504.0}, {"a": 260.94, "d": 503.5}, {"a": 263.7, "d": 468.0}, {"a": 265.03, "d": 465.0}, {"a": 266.42, "d": 461.75}, {"a": 268.14, "d": 458.75}, {"a": 269.16, "d": 458.25}, {"a": 270.7, "d": 460.25}, {"a": 273.64, "d": 430.75}, {"a": 276.34, "d": 411.75}, {"a": 277.91, "d": 412.75}, {"a": 279.16, "d": 408.5}, {"a": 280.48, "d": 401.75}, {"a": 281.8, "d": 401.75}, {"a": 282.95, "d": 408.75}, {"a": 284.27, "d": 416.0}, {"a": 285.77, "d": 418.0}, {"a": 287.2, "d": 416.75}, {"a": 305.62, "d": 4616.25}, {"a": 306.97, "d": 4709.75}, {"a": 308.33, "d": 4731.75}, {"a": 309.69, "d": 4663.5}, {"a": 313.62, "d": 7769.25}, {"a": 314.97, "d": 7945.75}, {"a": 321.95, "d": 3744.0}, {"a": 323.38, "d": 3698.75}, {"a": 324.73, "d": 3700.25}, {"a": 326.06, "d": 3700.0}, {"a": 327.42, "d": 3751.75}, {"a": 330.12, "d": 4019.25}, {"a": 332.95, "d": 3001.5}, {"a": 334.33, "d": 2932.75}, {"a": 335.69, "d": 2864.0}, {"a": 337.03, "d": 2875.25}, {"a": 338.38, "d": 2960.5}, {"a": 342.31, "d": 3951.25}, {"a": 343.67, "d": 3951.75}, {"a": 345.05, "d": 3952.0}, {"a": 346.41, "d": 3978.5}] 
+
