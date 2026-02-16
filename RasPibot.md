@@ -1,4 +1,7 @@
 # Notes on building the RaspiBot
+> This started out as kind of a *Wish list* that nailed down the scope of the proposed project,
+but gradually evolved into more of a journal where I keep track of the steps taken along the way.
+
 * Use a Raspberry Pi SBC configured with pyinfra, using the services/MQTT paradigm from LRP3
 * *Repurpose* the chassis and RasPi from my old ROS robot
 * Will do (roughly) what the picobot aimed to do:
@@ -117,8 +120,11 @@ lidar.disconnect()
 ```
         
 ## Using `pyinfra` to manage the code on the (remote) raspibot
-In chapter 4 of Danny Staple's book *Learn Robotics Programming (Version 3)*, he shows how `pyinfra` can be used to keep all the code and configuration up-to-date on remote computers from the laptop. (Just to be clear, since I have elected to install `uv` and set up my `~` directory as a *uv project*, I will continue to manage the *uv* environment directly via ssh, and will use *pyinfra* to maintain the code and the *apt* configuration on the raspibot.)
+In chapter 4 of Danny Staple's book *Learn Robotics Programming V3 (LRP3)*, he shows how `pyinfra` can be used to keep all the code and configuration up-to-date on remote computers from the laptop. (Just to be clear, since I have elected to install `uv` and set up my `~` directory as a *uv project*, I will continue to manage the *uv* environment directly via ssh, and will use *pyinfra* to maintain the code and the *apt* configuration on the raspibot.)
 
+> To see all the packages that have been added to the *uv environment*, use the command `uv pip list`.
+The command `uv pip tree` will show the dependency relationship of packages that were installed incidentally.
+ 
 #### Referring to *LRP3 chapter 4* as a guide:
 * **On my laptop**, create a *raspibot* folder. This will contain all the files for the project that are located on the laptop.
 * Run the command `uv init` from a terminal inside the *raspibot* folder.
@@ -131,7 +137,7 @@ In chapter 4 of Danny Staple's book *Learn Robotics Programming (Version 3)*, he
 * From a terminal in the *raspibot* folder, run the command: `pyinfra inventory.py files.sync src=robot dest=robot -y`. This will create *robot/tests/rplidar_test.py* on the raspibot.
 * Now ssh to the robot `ssh doug@raspibot.local`
     * Run the command `uv run python robot/tests/rplidar_test.py`
-    * Produced the following output
+    * Produces the following output
 ```
 doug@raspibot:~/robot $ uv run python robot/tests/rplidar_test.py
 {'model': 24, 'firmware': (1, 29), 'hardware': 7, 'serialnumber': '92D5EE8BC8E792D6B1E39BF01B034C6C'}
@@ -155,6 +161,8 @@ doug@raspibot:~/robot $ uv run python robot/tests/rplidar_test.py
 * From the laptop, run `scp doug@raspibot.local:data.pkl .` to retrieve the scans.
 * On the laptop, run the file *display_lidar.py*, which loads the data and displays it.
     * The image below is *just the last of the 10 scans*.
+    * Note the units of angle are *degrees* and the units of distance are *milimeters*.
+    * Initially, the scan map was *flipped around the horizontal axis*. To fix it, I had to replace angle with *negative angle*.
 ![Arena lidar map](desktop_code/arena_lidar_map.png)
 
 ## Set up Odometry Sensor
@@ -282,4 +290,11 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
     * Got a flood of data. Here is just one scan:
 
 > lidar/data [{"a": 356.59, "d": 4070.0}, {"a": 357.97, "d": 4105.25}, {"a": 359.31, "d": 4137.5}, {"a": 0.67, "d": 4170.0}, {"a": 2.02, "d": 4208.75}, {"a": 21.94, "d": 543.5}, {"a": 23.47, "d": 527.5}, {"a": 24.92, "d": 512.5}, {"a": 26.19, "d": 499.5}, {"a": 27.75, "d": 486.75}, {"a": 34.16, "d": 297.75}, {"a": 34.84, "d": 292.0}, {"a": 36.53, "d": 287.0}, {"a": 38.75, "d": 282.0}, {"a": 39.39, "d": 277.25}, {"a": 40.81, "d": 273.0}, {"a": 43.11, "d": 269.25}, {"a": 44.45, "d": 265.5}, {"a": 45.28, "d": 262.25}, {"a": 46.88, "d": 259.5}, {"a": 48.42, "d": 256.5}, {"a": 49.5, "d": 253.75}, {"a": 51.73, "d": 251.25}, {"a": 53.75, "d": 249.0}, {"a": 54.3, "d": 247.0}, {"a": 54.73, "d": 245.0}, {"a": 57.08, "d": 243.0}, {"a": 57.89, "d": 241.25}, {"a": 60.08, "d": 240.0}, {"a": 60.8, "d": 238.75}, {"a": 63.56, "d": 237.75}, {"a": 63.19, "d": 237.0}, {"a": 66.31, "d": 236.25}, {"a": 67.67, "d": 235.5}, {"a": 68.91, "d": 234.75}, {"a": 69.52, "d": 234.25}, {"a": 73.69, "d": 209.0}, {"a": 75.8, "d": 206.0}, {"a": 77.16, "d": 203.5}, {"a": 78.75, "d": 200.75}, {"a": 79.86, "d": 198.75}, {"a": 81.22, "d": 196.75}, {"a": 82.58, "d": 195.0}, {"a": 83.94, "d": 193.25}, {"a": 85.3, "d": 191.25}, {"a": 86.64, "d": 189.5}, {"a": 88.02, "d": 188.25}, {"a": 89.36, "d": 186.75}, {"a": 90.72, "d": 185.5}, {"a": 92.06, "d": 184.25}, {"a": 93.42, "d": 183.5}, {"a": 94.78, "d": 183.0}, {"a": 96.14, "d": 182.25}, {"a": 97.5, "d": 181.25}, {"a": 98.84, "d": 181.0}, {"a": 100.2, "d": 180.5}, {"a": 101.56, "d": 180.0}, {"a": 102.92, "d": 180.25}, {"a": 123.19, "d": 181.0}, {"a": 124.55, "d": 182.0}, {"a": 125.89, "d": 183.0}, {"a": 127.25, "d": 184.25}, {"a": 128.61, "d": 185.25}, {"a": 129.95, "d": 186.25}, {"a": 131.31, "d": 188.0}, {"a": 191.91, "d": 439.0}, {"a": 193.22, "d": 437.0}, {"a": 194.56, "d": 443.25}, {"a": 195.81, "d": 450.0}, {"a": 197.2, "d": 457.0}, {"a": 198.42, "d": 465.0}, {"a": 199.75, "d": 473.0}, {"a": 201.22, "d": 481.25}, {"a": 202.58, "d": 490.5}, {"a": 203.73, "d": 500.75}, {"a": 204.95, "d": 511.25}, {"a": 206.28, "d": 522.0}, {"a": 207.48, "d": 534.0}, {"a": 208.89, "d": 546.5}, {"a": 210.16, "d": 560.75}, {"a": 211.45, "d": 575.5}, {"a": 212.83, "d": 590.75}, {"a": 214.09, "d": 607.5}, {"a": 215.31, "d": 625.5}, {"a": 216.64, "d": 644.25}, {"a": 251.16, "d": 524.25}, {"a": 252.48, "d": 520.0}, {"a": 255.3, "d": 507.0}, {"a": 256.84, "d": 508.75}, {"a": 257.97, "d": 510.25}, {"a": 259.42, "d": 504.0}, {"a": 260.94, "d": 503.5}, {"a": 263.7, "d": 468.0}, {"a": 265.03, "d": 465.0}, {"a": 266.42, "d": 461.75}, {"a": 268.14, "d": 458.75}, {"a": 269.16, "d": 458.25}, {"a": 270.7, "d": 460.25}, {"a": 273.64, "d": 430.75}, {"a": 276.34, "d": 411.75}, {"a": 277.91, "d": 412.75}, {"a": 279.16, "d": 408.5}, {"a": 280.48, "d": 401.75}, {"a": 281.8, "d": 401.75}, {"a": 282.95, "d": 408.75}, {"a": 284.27, "d": 416.0}, {"a": 285.77, "d": 418.0}, {"a": 287.2, "d": 416.75}, {"a": 305.62, "d": 4616.25}, {"a": 306.97, "d": 4709.75}, {"a": 308.33, "d": 4731.75}, {"a": 309.69, "d": 4663.5}, {"a": 313.62, "d": 7769.25}, {"a": 314.97, "d": 7945.75}, {"a": 321.95, "d": 3744.0}, {"a": 323.38, "d": 3698.75}, {"a": 324.73, "d": 3700.25}, {"a": 326.06, "d": 3700.0}, {"a": 327.42, "d": 3751.75}, {"a": 330.12, "d": 4019.25}, {"a": 332.95, "d": 3001.5}, {"a": 334.33, "d": 2932.75}, {"a": 335.69, "d": 2864.0}, {"a": 337.03, "d": 2875.25}, {"a": 338.38, "d": 2960.5}, {"a": 342.31, "d": 3951.25}, {"a": 343.67, "d": 3951.75}, {"a": 345.05, "d": 3952.0}, {"a": 346.41, "d": 3978.5}] 
+
+* Here is a summary of the packages that have been added to the *uv* environment so far:
+    * `ssh doug@raspibot.local`
+        * `uv add rplidar-roboticia`
+        * `uv add sparkfun-qwiic-i2c`
+        * `uv add RPi.GPIO`
+        * `uv add paho-mqtt`
 
