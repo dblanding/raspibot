@@ -8,7 +8,7 @@ import sys
 # --- MQTT Configuration ---
 MQTT_BROKER = "localhost"  # Replace with your MQTT broker address (e.g., "broker.hivemq.com" or a local IP)
 MQTT_PORT = 1883           # Default MQTT port
-MQTT_TOPIC = "robot/pose"  # The topic to publish data to
+MQTT_TOPIC = "odom/pose"   # The topic to publish data to
 MQTT_USERNAME = "robot"
 MQTT_PASSWORD = "robot"
 client = mqtt.Client()

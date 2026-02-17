@@ -333,8 +333,10 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
 
 ![MQTTUI window 2](imgs/mqttui2.png)
 
-#### Write Odometer program to read pose data from Sparkfun Optical Tracking Odometry Sensor and publish it on topic 'robot/pose'
+#### Write Odometer program to read pose data from Sparkfun Optical Tracking Odometry Sensor and publish it on topic 'odom/pose'
 * This program *[robot/tests/odometer.py](robot/odometer.py)* reads pose data (x, y, heading) from the OTOS and publishes it as JSON to the MQTT broker.
+* Check distance and angle by driving 1 meter (in X), turning around and returning to start position.
+    * OK
 * Check with mqttui to make sure the pose data is getting published.
     * OK
 
