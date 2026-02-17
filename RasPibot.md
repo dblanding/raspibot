@@ -326,8 +326,28 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
 
 ![MQTTUI window](imgs/mqttui.png)
 * Ah Ha!! I think it's a timeout error that occurs because nothing is geting published while the scanner is idle. When the broker doesn't receive any messages within the timeout interval, it just closes the connection.
-    * I revised the scanner code to publish lidar info every 5 seconds when it is idle.
+    * I revised *robot/scanner.py* to publish lidar info every 5 seconds when it is idle.
+        * `pyinfra inventory.py deploy/update_code.py`
+        * restart service: `sudo service scanner restart`
     * This seems to fix the problem.
 
 ![MQTTUI window 2](imgs/mqttui2.png)
+
+#### Write Odometer program to read pose data from Sparkfun Optical Tracking Odometry Sensor and publish it on topic 'robot/pose'
+* This program *[robot/tests/odometer.py](robot/odometer.py)* reads pose data (x, y, heading) from the OTOS and publishes it as JSON to the MQTT broker.
+* Check with mqttui to make sure the pose data is getting published.
+    * OK
+
+#### Query: "write a python program that subscribes to 2 mqtt topics"
+* To subscribe to two MQTT topics in Python, you can use the
+paho-mqtt library. The recommended approach is to use a single client and either call client.subscribe() multiple times or use a list of tuples to subscribe to both topics in one call. 
+
+* This [program](desktop_code/sub2topics.py) connects to a public MQTT broker and subscribes to two example topics, test/topic1 and test/topic2. The on_message callback function handles messages from both topics and identifies which topic they belong to. 
+* How to Run the Program
+
+1. Save: Save the code above as a Python file (e.g., mqtt_subscriber.py).
+2. Run: Execute the script from your terminal: python mqtt_subscriber.py.
+3. Test: Use another MQTT client to publish messages to test/topic1 and test/topic2 on mqtt.eclipseprojects.io. Your Python script should print the received messages. 
+
+* This example demonstrates how to efficiently subscribe to multiple topics and manage messages within a single on_message callback function, using msg.topic to differentiate between them. 
 
