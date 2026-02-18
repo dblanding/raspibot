@@ -334,22 +334,15 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
 ![MQTTUI window 2](imgs/mqttui2.png)
 
 #### Write Odometer program to read pose data from Sparkfun Optical Tracking Odometry Sensor and publish it on topic 'odom/pose'
-* This program *[robot/tests/odometer.py](robot/odometer.py)* reads pose data (x, y, heading) from the OTOS and publishes it as JSON to the MQTT broker.
+* The program *[robot/odometer.py](robot/odometer.py)* reads pose data (x, y, heading) from the OTOS and publishes it as JSON to the MQTT broker.
 * Check distance and angle by driving 1 meter (in X), turning around and returning to start position.
     * OK
 * Check with mqttui to make sure the pose data is getting published.
     * OK
 
-#### Query: "write a python program that subscribes to 2 mqtt topics"
-* To subscribe to two MQTT topics in Python, you can use the
-paho-mqtt library. The recommended approach is to use a single client and either call client.subscribe() multiple times or use a list of tuples to subscribe to both topics in one call. 
-
-* This [program](desktop_code/sub2topics.py) connects to a public MQTT broker and subscribes to two example topics, test/topic1 and test/topic2. The on_message callback function handles messages from both topics and identifies which topic they belong to. 
-* How to Run the Program
-
-1. Save: Save the code above as a Python file (e.g., mqtt_subscriber.py).
-2. Run: Execute the script from your terminal: python mqtt_subscriber.py.
-3. Test: Use another MQTT client to publish messages to test/topic1 and test/topic2 on mqtt.eclipseprojects.io. Your Python script should print the received messages. 
-
-* This example demonstrates how to efficiently subscribe to multiple topics and manage messages within a single on_message callback function, using msg.topic to differentiate between them. 
+#### Write a mapper program (to run on the laptop) that subscribes to both "lidar/data" and "odom/pose" topics.
+* As a test, this program [desktop/dual_client_test.py](desktop_code/dual_client_test.py) subscribes to both topics and just prints out the data.
+    * Run program with `uv run python dual_client_test.py`
+* However, it didn't work when I first powered up the robot.
+* It began to work OK after restarting the scanner service `sudo service scanner restart` and launching the odometer `uv run python robot/odometer.py`
 
