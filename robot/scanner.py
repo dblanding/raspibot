@@ -1,5 +1,6 @@
 import paho.mqtt.client as mqtt
 import json
+from math import pi
 import RPi.GPIO as GPIO
 from rplidar import RPLidar
 import time
@@ -32,8 +33,10 @@ def run():
     # Iterate over scans (motor runs automatically when scanning starts)
     for scan in lidar.iter_scans():
         data = []
+        # rplidar reports: angle in degrees, distance in mm
+        # convert: angle -> radians, distance -> meters
         for (_, angle, distance) in scan:
-            data.append({"a": round(angle, 2), "d": round(distance, 2)})
+            data.append({"a": round(angle*pi/180, 2), "d": round(distance*0.001, 2)})
 
         # Publish
         payload = json.dumps(data)

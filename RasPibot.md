@@ -340,9 +340,77 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
 * Check with mqttui to make sure the pose data is getting published.
     * OK
 
-#### Write a mapper program (to run on the laptop) that subscribes to both "lidar/data" and "odom/pose" topics.
+#### Write a mqtt listener program (to run on the laptop) that subscribes to both "lidar/data" and "odom/pose" topics.
 * As a test, this program [desktop/dual_client_test.py](desktop_code/dual_client_test.py) subscribes to both topics and just prints out the data.
     * Run program with `uv run python dual_client_test.py`
 * However, it didn't work when I first powered up the robot.
 * It began to work OK after restarting the scanner service `sudo service scanner restart` and launching the odometer `uv run python robot/odometer.py`
+```
+[Client B] Topic: odom/pose | Message: {"x_m": 0.0, "y_m": 0.00030517578125, "hdg_rad": 0.011984214782714843}
+[Client A] Topic: lidar/data | Message: [{"a": 357.09, "d": 4042.25},  ... , {"a": 346.58, "d": 3956.75}]
+[Client B] Topic: odom/pose | Message: {"x_m": 0.0, "y_m": 0.00030517578125, "hdg_rad": 0.013230573120117188}
+```
+
+#### Write a mapper program to build an OGM, using the data from both "lidar/data" and "odom/pose" topics
+* Run this program (on the laptop) with the command `uv run python mapper.py`
+* Then start odometer on raspibot `uv run python robot/odometer.py`
+* Then trigger scanner to run for a few seconds by grounding gpio pin.
+* mapper reported several scans read
+```
+Robot pose updated
+Robot pose updated
+Robot pose updated
+Robot pose updated
+New lidar scan received
+Robot pose updated
+New lidar scan received
+Robot pose updated
+Robot pose updated
+New lidar scan received
+Robot pose updated
+New lidar scan received
+Robot pose updated
+New lidar scan received
+Robot pose updated
+Robot pose updated
+New lidar scan received
+New lidar scan received
+Robot pose updated
+Robot pose updated
+New lidar scan received
+Robot pose updated
+Robot pose updated
+New lidar scan received
+Robot pose updated
+New lidar scan received
+Robot pose updated
+New lidar scan received
+Robot pose updated
+Robot pose updated
+New lidar scan received
+Robot pose updated
+New lidar scan received
+Robot pose updated
+New lidar scan received
+Robot pose updated
+New lidar scan received
+Robot pose updated
+New lidar scan received
+Robot pose updated
+Robot pose updated
+New lidar scan received
+Robot pose updated
+New lidar scan received
+Robot pose updated
+Robot pose updated
+New lidar scan received
+Robot pose updated
+Robot pose updated
+Robot pose updated
+```
+* *Ctrl c* to stop mapper
+
+![first OGM from mapper](imgs/ogm1.png)
+
+* Obviously **not working**, but at least it ran without crashing.
 
