@@ -60,20 +60,26 @@ async def main(ogm):
     listener_task = asyncio.create_task(subscriber.connect_and_subscribe())
 
     # Example of how to retrieve the messages periodically or on an event
-    # For demonstration, we'll wait a bit and print the current state
+    # For demonstration, we'll update the map once per second for 10 seconds
     await asyncio.sleep(5) 
-    print("\nRetrieving latest messages after 5 seconds:")
-    current_messages = subscriber.get_latest_messages()
-    for topic, message in current_messages.items():
-        if topic == "lidar/data":
-            if message:
-                scans = json.loads(message)
-        elif topic == "odom/pose":
-            if message:
-                pose = json.loads(message)
+    print("start driving")
+    for i in range(1, 11):
+        await asyncio.sleep(1)
+        print(f"{i} seconds")
+        current_messages = subscriber.get_latest_messages()
+        for topic, message in current_messages.items():
+            if topic == "lidar/data":
+                if message:
+                    scans = json.loads(message)
+                    print(f"scan len: {len(scans)}")
+            elif topic == "odom/pose":
+                if message:
+                    pose = json.loads(message)
+                    print(f"pose: {pose}")
 
-    # Update map
-    ogm.update_map(pose, scans)
+            # Update map
+            if pose and scans:
+                ogm.update_map(pose, scans)
 
     # The listener_task is still running. In a real app (e.g., web server)
     # the main program would continue to run without blocking.

@@ -340,77 +340,18 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
 * Check with mqttui to make sure the pose data is getting published.
     * OK
 
-#### Write a mqtt listener program (to run on the laptop) that subscribes to both "lidar/data" and "odom/pose" topics.
-* As a test, this program [desktop/dual_client_test.py](desktop_code/dual_client_test.py) subscribes to both topics and just prints out the data.
-    * Run program with `uv run python dual_client_test.py`
-* However, it didn't work when I first powered up the robot.
-* It began to work OK after restarting the scanner service `sudo service scanner restart` and launching the odometer `uv run python robot/odometer.py`
-```
-[Client B] Topic: odom/pose | Message: {"x_m": 0.0, "y_m": 0.00030517578125, "hdg_rad": 0.011984214782714843}
-[Client A] Topic: lidar/data | Message: [{"a": 357.09, "d": 4042.25},  ... , {"a": 346.58, "d": 3956.75}]
-[Client B] Topic: odom/pose | Message: {"x_m": 0.0, "y_m": 0.00030517578125, "hdg_rad": 0.013230573120117188}
-```
+#### Write a mapping program that runs on the laptop and builds an OGM
+* the map is generated in the Build_OGM class 
+* *mapper.py* listens to both "lidar/data" and "odom/pose" topics, saving the most recent values of pose and scan
+* Trigger the scanner to start scanning by grounding the gpio pin.
+* Place robot approximately in center of arena, facing the chosen *x* direction
+* Then start the odometer service with `uv run python robot/odometer.py`
+* Now start mapper with the command `uv run python mapper.py`
+    * Once per second, mapper calls the update_map method of Build_OGM, using its most recent values of pose and scan as arguments
+* mapper makes 10 scans, 1 second apart, as the robot drives slowly under tele-op control
+* After the final scan, press *ctrl-c* to save the map and stop the program
+* Display the map by running *display_saved_map.py*
 
-#### Write a mapper program to build an OGM, using the data from both "lidar/data" and "odom/pose" topics
-* Run this program (on the laptop) with the command `uv run python mapper.py`
-* Then start odometer on raspibot `uv run python robot/odometer.py`
-* Then trigger scanner to run for a few seconds by grounding gpio pin.
-* mapper reported several scans read
-```
-Robot pose updated
-Robot pose updated
-Robot pose updated
-Robot pose updated
-New lidar scan received
-Robot pose updated
-New lidar scan received
-Robot pose updated
-Robot pose updated
-New lidar scan received
-Robot pose updated
-New lidar scan received
-Robot pose updated
-New lidar scan received
-Robot pose updated
-Robot pose updated
-New lidar scan received
-New lidar scan received
-Robot pose updated
-Robot pose updated
-New lidar scan received
-Robot pose updated
-Robot pose updated
-New lidar scan received
-Robot pose updated
-New lidar scan received
-Robot pose updated
-New lidar scan received
-Robot pose updated
-Robot pose updated
-New lidar scan received
-Robot pose updated
-New lidar scan received
-Robot pose updated
-New lidar scan received
-Robot pose updated
-New lidar scan received
-Robot pose updated
-New lidar scan received
-Robot pose updated
-Robot pose updated
-New lidar scan received
-Robot pose updated
-New lidar scan received
-Robot pose updated
-Robot pose updated
-New lidar scan received
-Robot pose updated
-Robot pose updated
-Robot pose updated
-```
-* *Ctrl c* to stop mapper
+![First OGM](imgs/ogm.png)
 
-![first OGM from mapper](imgs/ogm1.png)
-
-* Obviously **not working**, but at least it ran without crashing.
 
