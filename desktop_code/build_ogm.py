@@ -34,12 +34,12 @@ class Build_OGM:
     def update_map(self, robot_pose, scan_data):
         """
         Updates the map using an inverse sensor model.
-        robot_pose: {"x_m": 0.0, "y_m": 0.0, "hdg_rad": 0.0} dict
-        scan_data: list of {'a': 6.24, 'd': 4.07} dictionaries
+        robot_pose: {"x": , "y": , "h": , "t": , "xr": , "yr": , "hr": } dict
+        scan_data: list of {'a': , 'd': , 't': } dictionaries
         """
-        rx = robot_pose["x_m"]
-        ry = robot_pose["y_m"]
-        ryaw = robot_pose["hdg_rad"]
+        rx = robot_pose["x"]
+        ry = robot_pose["y"]
+        ryaw = robot_pose["h"]
         
         ix_src, iy_src = self.pos_to_index(rx, ry)
 

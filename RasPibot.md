@@ -352,6 +352,11 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
 * After the final scan, press *ctrl-c* to save the map and stop the program
 * Display the map by running *display_saved_map.py*
 
-![First OGM](imgs/ogm.png)
+![First OGM](imgs/ogm1.png)
 
+* Revised the code to try to improve the quality of the map produced
+    * Reduced the amount of rounding of the pose data
+    * Added time stamps to both odom and scan data
+    * Added rate of change for pose data
 
+![second OGM](imgs/ogm2.png)

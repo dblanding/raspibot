@@ -1,20 +1,24 @@
-# Command Summary for Raspibot
+# Summary of Commands for Raspibot
+* First, connect via ssh: `ssh doug@raspibot.local`
+
 * Check Batteries:
-    * From `ssh doug@raspibot.local`
-        * `sudo python3 ~/UPS/INA219.py`
-        * ctrl c to exit
-* Run lidar test (10 scans):
-    * From `ssh doug@raspibot.local`
-        * `uv run python robot/tests/rplidar_test.py`
-    * From *raspibot/desktop_code/* folder on laptop
-        * Copy data `scp doug@raspibot.local:data.pkl .`
-        * Display the scan `python display_lidar.py`
-* Run OTOS test:
-    * From `ssh doug@raspibot.local`
-        * `uv run python robot/tests/otos_test.py`
-        * ctrl c to exit
-* Check status of (lidar) scanner service:
-    * From `ssh doug@raspibot.local`
-        * `systemctl status scanner`
-        * For more information, and to see its full log, use `journalctl -u scanner.service`
+    * `sudo python3 ~/UPS/INA219.py`
+    * *ctrl c* to exit
+* Scanner service (lidar):
+    * Check status: `systemctl status scanner`
+    * For more information, and to see its full log, use `journalctl -u scanner.service`
+    * Restart service: `sudo service scanner restart`
+* Odometer (OTOS)
+    * Start: `uv run python robot/odometer.py`
+    * *ctrl c* to Stop
+
+## Commands run on laptop:
+* Update code on robot: `pyinfra inventory.py deploy/update_code.py`
+* Mapper:
+    * Start mapping: `uv run python mapper.py`
+    * *ctrl c* to Stop (saves map to file)
+    * Display map by running *display_saved_map.py*
+* MQTTUI:
+    * Start: `mqttui -b mqtt://raspibot.local -u robot --password robot`
+    * *q* to Quit
 

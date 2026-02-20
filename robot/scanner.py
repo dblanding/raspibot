@@ -36,7 +36,9 @@ def run():
         # rplidar reports: angle in degrees, distance in mm
         # convert: angle -> radians, distance -> meters
         for (_, angle, distance) in scan:
-            data.append({"a": round(angle*pi/180, 2), "d": round(distance*0.001, 2)})
+            data.append({"a": round(angle*pi/180, 4),
+                         "d": round(distance*0.001, 5),
+                         "t": time.monotonic()})
 
         # Publish
         payload = json.dumps(data)
