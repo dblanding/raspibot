@@ -361,10 +361,17 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
 
 ![Second OGM](imgs/ogm2.png)
 
-* Adjust pose value to be in sync with mid-scan
+* Adjust pose value to be in sync with mid-scan measurement
     * Using timestamps, estimate pose at time of mid-scan
     * Use this pose for all updates in scan
 
 ![Third OGM](imgs/ogm3.png)
 
+* Estimate pose value at each individual scan measurement
+    * Each map update uses a unique and different calculated pose value
 
+![Fourth OGM](imgs/ogm4.png)
+
+* Not an obvious improvement over using one estimated pose value for the entire scan
+    * This series of tests has used 10 scans at 1 second intervals
+    * When updating more frequently, it would be a good idea to compare the cost in terms of execution time for updating the pose value for each individual scan w/r/t the time for using one pose value for the entire scan.

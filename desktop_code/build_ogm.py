@@ -37,22 +37,21 @@ class Build_OGM:
         robot_pose: {"x": , "y": , "h": , "t": , "xr": , "yr": , "hr": } dict
         scan_data: list of {'a': , 'd': , 't': } dictionaries
         """
-        # Find time difference between mid-scan and pose
-        scan_len = len(scan_data)
-        mid_scan_time = scan_data[scan_len//2]['t']
         pose_time = robot_pose["t"]
-        time_diff = mid_scan_time - pose_time
- 
-        # Estimate pose value at time of mid-scan
-        rx = robot_pose["x"] + robot_pose["xr"] * time_diff
-        ry = robot_pose["y"] + robot_pose["yr"] * time_diff
-        ryaw = robot_pose["h"] + robot_pose["hr"] * time_diff
-        
-        ix_src, iy_src = self.pos_to_index(rx, ry)
-
         for meas in scan_data:
             angle = meas['a']
             dist = meas['d']
+            scan_time = meas['t']
+
+            # Find time difference between scan and pose
+            time_diff = scan_time - pose_time
+
+            # Estimate pose value at scan_time
+            rx = robot_pose["x"] + robot_pose["xr"] * time_diff
+            ry = robot_pose["y"] + robot_pose["yr"] * time_diff
+            ryaw = robot_pose["h"] + robot_pose["hr"] * time_diff
+            ix_src, iy_src = self.pos_to_index(rx, ry)
+
             # Calculate absolute position of the detection
             tx = rx + dist * math.cos(ryaw - angle)
             ty = ry + dist * math.sin(ryaw - angle)
