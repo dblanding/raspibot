@@ -354,9 +354,17 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
 
 ![First OGM](imgs/ogm1.png)
 
-* Revised the code to try to improve the quality of the map produced
-    * Reduced the amount of rounding of the pose data
-    * Added time stamps to both odom and scan data
-    * Added rate of change for pose data
+* Code revisions w/ goal of improving the quality of the map produced
+    * Reduce pose data rounding error
+    * Add time stamps to both odom and scan data
+    * Add rate of change for pose data
 
-![second OGM](imgs/ogm2.png)
+![Second OGM](imgs/ogm2.png)
+
+* Adjust pose value to be in sync with mid-scan
+    * Using timestamps, estimate pose at time of mid-scan
+    * Use this pose for all updates in scan
+
+![Third OGM](imgs/ogm3.png)
+
+
