@@ -384,12 +384,21 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
     * How about pose data?
         * Received at 10 hz
         * processed by map building @ 1 Hz)
-    * Execution time for map update **estimating pose for every individual scan measurement**
-        * The average (mean) is: 0.002275 sec.
-        * The standard deviation is: 0.000206 sec.
-    * Execution time for map update **estimating pose once for entire scan**
+    * Execution time for map update estimating pose for **each measurement** in scan
+        * For 10 scans:
+            * The average (mean) is: 0.002275 sec.
+            * The standard deviation is: 0.000206 sec.
+    * Execution time for map update estimating pose **once for entire scan**
+        * For 10 scans:
+            * The average (mean) is: 0.002018 sec.
+            * The standard deviation is: 0.000108 sec.
+    * I decided to go forward with estimating pose **once for entire scan** on the basis of
+        * No discernible difference in map quality
+        * Slightly faster execution time for map updates
+        * Significantly better repeatability of execution time.
+        * I kept the version that estimates pose for **each measurement** as *build_ogm_alt.py*
         
-* Move on to next phase of development
+* What's next phase of development?
     * I had thought I would have a webserver running on the raspibot for a couple of purposes:
         1. It was going to have a button for safely shutting down the RasPi
         2. And it was part of my plan for doing mapping.

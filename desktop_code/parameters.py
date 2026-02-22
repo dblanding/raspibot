@@ -6,5 +6,5 @@ orig_x_pos = 0.375  # position of origin on map, as a fraction of width
 orig_y_pos = 0.25  # position of origin on map, as a fraction of height
 
 # operating parameters
-n = 10  # number of scans requested at 1 second intervals
-debug = True
+n = 50  # number of scans requested at 1 second intervals
+debug = False
