@@ -4,6 +4,7 @@ import numpy as np
 import sys
 import json
 from build_ogm import Build_OGM
+import parameters
 
 class MQTTSubscriber:
     def __init__(self, broker, port, topics):
@@ -63,7 +64,7 @@ async def main(ogm):
     # For demonstration, we'll update the map once per second for 10 seconds
     await asyncio.sleep(5) 
     print("start driving")
-    for i in range(1, 11):
+    for i in range(1, 51):
         await asyncio.sleep(1)
         print(f"{i} seconds")
         current_messages = subscriber.get_latest_messages()
@@ -88,8 +89,12 @@ async def main(ogm):
     await listener_task
 
 if __name__ == "__main__":
-    # Initialize OGM (10m x 10m, 0.1m resolution)
-    ogm = Build_OGM(width=3, height=3, resolution=0.04)
+    # Initialize OGM
+    ogm = Build_OGM(width=parameters.width,
+                    height=parameters.height,
+                    resolution=parameters.resolution,
+                    orig_x_pos=parameters.orig_x_pos,
+                    orig_y_pos=parameters.orig_y_pos)
     try:
         asyncio.run(main(ogm))
     except KeyboardInterrupt:

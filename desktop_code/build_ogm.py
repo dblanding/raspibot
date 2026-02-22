@@ -3,10 +3,14 @@ import math
 
 
 class Build_OGM:
-    def __init__(self, width, height, resolution, p_occ=0.7, p_free=0.3, p_prior=0.5):
+    def __init__(self, width, height, resolution,
+                 orig_x_pos=0.5, orig_y_pos=0.5,
+                 p_occ=0.7, p_free=0.3, p_prior=0.5):
         self.resolution = resolution
         self.width = width
         self.height = height
+        self.orig_x_pos = orig_x_pos  # origin position as a fraction of width
+        self.orig_y_pos = orig_y_pos  # origin position as a fraction of height
         
         # Initialize grid dimensions
         self.nx = int(round(width / resolution))
@@ -27,8 +31,8 @@ class Build_OGM:
         return 1.0 - (1.0 / (1.0 + np.exp(l)))
 
     def pos_to_index(self, x, y):
-        ix = int(round((x + self.width / 2) / self.resolution))
-        iy = int(round((y + self.height / 2) / self.resolution))
+        ix = int(round((x + self.width * self.orig_x_pos) / self.resolution))
+        iy = int(round((y + self.height * self.orig_y_pos) / self.resolution))
         return ix, iy
 
     def update_map(self, robot_pose, scan_data):

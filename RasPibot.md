@@ -1,5 +1,5 @@
 # Notes on building the RaspiBot
-> This started out as kind of a *Wish list* that nailed down the scope of the proposed project,
+> This started out as a *Wish list* to nail down the scope of the proposed project,
 but gradually evolved into more of a journal where I keep track of the steps taken along the way.
 
 * Use a Raspberry Pi SBC configured with pyinfra, using the services/MQTT paradigm from LRP3
@@ -372,6 +372,32 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
 
 ![Fourth OGM](imgs/ogm4.png)
 
-* Not an obvious improvement over using one estimated pose value for the entire scan
+* No apparent improvement over using one estimated pose value for the entire scan
     * This series of tests has used 10 scans at 1 second intervals
     * When updating more frequently, it would be a good idea to compare the cost in terms of execution time for updating the pose value for each individual scan w/r/t the time for using one pose value for the entire scan.
+
+#### Thoughts on *What's next?*
+* Performance bottlenecks?
+    * Scan motor runs at 5.5 rps. How fast are scans
+        * being sent?
+        * arriving at the laptop?
+        * being processed by map building?
+    * How about pose data (running at 10 hz)
+    * Execution time of estimating pose for every individual scan meas vs. once for entire scan
+* Move on to next phase of development
+    * I had thought I would have a webserver running on the raspibot for a couple of purposes:
+        1. It was going to have a button for safely shutting down the RasPi
+        2. And it was part of my plan for doing mapping.
+    * But neither of these reasons is very compelling.
+        1. I already have a physical button on the robot for shutting down the RasPi
+        2. I don't need a webserver for mapping. The mapping program runs on my laptop.
+            * Here is the process I currently use to build a map.
+                1. If the bot was just powered up, I restart the scanner service.
+                2. I ground the gpio pin to start the scanner scanning.
+                3. I start the odometer program (It's not currently set up as a service.)
+                4. I start mapper on my laptop.
+                5. I tele-operate the robot using the joystick.
+            * I may want to consider how I could streamline this into fewer steps.
+    * I then looked through all the chapters in LRP3 to see if I am reminded about any uses for a webserver would apply to the raspibot, and found nothing.
+    * I also went through all the links on the LRP3 Robot Control Web interface and found nothing there that made me think I need a webserver.
+    * So **scratch the webserver**.
