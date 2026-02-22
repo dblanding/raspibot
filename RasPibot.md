@@ -388,10 +388,14 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
         * For 10 scans:
             * The average (mean) is: 0.002275 sec.
             * The standard deviation is: 0.000206 sec.
+            * The map below was made with 50 scans during a CCW loop through kitchen
+            * ![Kitchen Loop estimate pose **each** meas](imgs/kitchen_loop3.png)
     * Execution time for map update estimating pose **once for entire scan**
         * For 10 scans:
             * The average (mean) is: 0.002018 sec.
             * The standard deviation is: 0.000108 sec.
+            * The map below was made with 50 scans during a CCW loop through kitchen
+            * ![Kitchen Loop estimate pose **once** for scan](imgs/kitchen_loop4.png)
     * I decided to go forward with estimating pose **once for entire scan** on the basis of
         * No discernible difference in map quality
         * Slightly faster execution time for map updates
