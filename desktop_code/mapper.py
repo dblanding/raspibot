@@ -1,8 +1,9 @@
 import asyncio
 import aiomqtt
+import json
 import numpy as np
 import sys
-import json
+import time
 from build_ogm import Build_OGM
 import parameters
 
@@ -40,7 +41,8 @@ class MQTTSubscriber:
             payload = message.payload.decode('utf-8')
             # Update the latest message in the dictionary
             self.latest_messages[topic] = payload
-            # print(f"Received on '{topic}': {len(payload)}")
+            if parameters.debug:
+                print(f"Received on '{topic}' @ {time.monotonic()} sec.")
 
     def get_latest_messages(self):
         """Retrieves the latest messages stored in the dictionary."""
@@ -54,38 +56,43 @@ async def main(ogm):
     
     subscriber = MQTTSubscriber(broker_address, 1883, mqtt_topics)
     pose = None
-    scans = None
+    scan = None
     
     # Run the connection and subscription in an asyncio task
     # Note: This will run forever until stopped
     listener_task = asyncio.create_task(subscriber.connect_and_subscribe())
 
-    # Example of how to retrieve the messages periodically or on an event
-    # For demonstration, we'll update the map once per second for 10 seconds
+    # Example of how to retrieve the messages periodically
+    # We'll update the map once per second for n seconds
     await asyncio.sleep(5) 
     print("start driving")
-    for i in range(1, 51):
+    for i in range(1, parameters.n + 1):
         await asyncio.sleep(1)
         print(f"{i} seconds")
         current_messages = subscriber.get_latest_messages()
         for topic, message in current_messages.items():
             if topic == "lidar/data":
                 if message:
-                    scans = json.loads(message)
-                    print(f"scan len: {len(scans)}")
+                    scan = json.loads(message)
+                    print(f"scan len: {len(scan)}")
             elif topic == "odom/pose":
                 if message:
                     pose = json.loads(message)
                     print(f"pose: {pose}")
 
             # Update map
-            if pose and scans:
-                ogm.update_map(pose, scans)
+            if pose and scan:
+                start_time = time.monotonic()
+                ogm.update_map(pose, scan)
+                end_time = time.monotonic()
+                if parameters.debug:
+                    elapsed = end_time - start_time
+                    print(f"Execution time for update: {elapsed} sec.")
 
     # The listener_task is still running. In a real app (e.g., web server)
     # the main program would continue to run without blocking.
     # To keep the script running indefinitely to receive messages, you would
-    # typically just await the listener task forever.
+    # typically just await the listener task forever. ctrl-c to stop.
     await listener_task
 
 if __name__ == "__main__":
