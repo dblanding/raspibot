@@ -36,3 +36,11 @@ code = files.put(
 
 deploy_service("scanner", "robot/scanner.py",
                True, code.changed)
+
+code = files.put(
+    name="Update odometer code",
+    src="robot/odometer.py", dest="robot/odometer.py")
+
+deploy_service("odometer","robot/odometer.py", 
+               False, code.changed)
+

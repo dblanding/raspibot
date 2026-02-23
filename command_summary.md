@@ -9,8 +9,10 @@
     * For more information, and to see its full log, use `journalctl -u scanner.service`
     * Restart service: `sudo service scanner restart`
 * Odometer (OTOS)
-    * Start: `uv run python robot/odometer.py`
-    * *ctrl c* to Stop
+    * Check status: `systemctl status odometer`
+    * For more information, and to see its full log, use `journalctl -u odometer.service`
+    * Start: `sudo systemctl start odometer.service`
+    * Stop: `sudo systemctl stop odometer.service`
 
 ## Commands run on laptop:
 * Update code on robot: `pyinfra inventory.py deploy/update_code.py`

@@ -111,9 +111,7 @@ def run_otos_mqtt():
             # Publish to MQTT
             result = client.publish(MQTT_TOPIC, json_payload, qos=1)
             status = result[0]
-            if status == 0:
-                print(f"Sent `{json_payload}` to topic `{MQTT_TOPIC}`")
-            else:
+            if status:
                 print(f"Failed to send message to topic {MQTT_TOPIC}")
 
             time.sleep(0.1) # Publish rate of 10 Hz

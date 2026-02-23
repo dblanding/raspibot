@@ -427,5 +427,17 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
     * I also went through all the links on the LRP3 Robot Control Web interface and found nothing there that made me think I need a webserver.
     * So **scratch the webserver**. That's good news for me because now I can cross off *Learn JavaScript* from my *To Do* list.
 
+#### Streamling the process of launching the mapping behavior
+* As noted above, there are a lot of steps that need to be taken in order to send the RasPiBot on a mapping run.
+* In order to streamline this process, let's begin by turning odometer.py into a **systemd service** which can be started and stopped.
+    * Edit the file *deploy/deploy_services.py* to create the service.
+    * Edit the file *robot/odometer.py* to **not print** voluminous messages, because they just fill up the log file.
+    * Deploy with `pyinfra inventory.py deploy/deploy_services.py -y`
+
+## The RasPiBot
 ![The RasPiBot](imgs/raspibot.jpeg)
+
+* Occupancy Grid Map (displayed with grid lines)
+
+![OGM w/ grid lines](imgs/ogm_w_grid_lines.png)
 
