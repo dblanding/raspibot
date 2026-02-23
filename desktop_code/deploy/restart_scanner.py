@@ -1,4 +1,3 @@
-# restart_scanner.py
 from pyinfra.operations import systemd
 
 systemd.service(

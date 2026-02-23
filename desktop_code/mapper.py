@@ -6,6 +6,7 @@ import sys
 import time
 from build_ogm import Build_OGM
 import parameters
+import service_ctrl as sc
 
 class MQTTSubscriber:
     def __init__(self, broker, port, topics):
@@ -62,13 +63,16 @@ async def main(ogm):
     # Note: This will run forever until stopped
     listener_task = asyncio.create_task(subscriber.connect_and_subscribe())
 
-    # Example of how to retrieve the messages periodically
-    # We'll update the map once per second for n seconds
-    await asyncio.sleep(5) 
+    # Restart the scanner, start the odometer
+    sc.restart_scanner()
+    sc.start_odometer()
+    await asyncio.sleep(7)  # The odometer has to do some initialization
+    
+    # Retrieve messages as they come in and update
+    # Update the map once per second
     print("start driving")
-    for i in range(1, parameters.n + 1):
+    while True:
         await asyncio.sleep(1)
-        print(f"{i} seconds")
         current_messages = subscriber.get_latest_messages()
         for topic, message in current_messages.items():
             if topic == "lidar/data":
@@ -107,6 +111,8 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("Subscriber stopped manually.")
     finally:
+        # Stop the odometer
+        sc.stop_odometer()
         # save the map
         np.save('my_map.npy', ogm.data)
         print("Map saved to my_map.npy")

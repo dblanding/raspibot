@@ -433,6 +433,12 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
     * Edit the file *deploy/deploy_services.py* to create the service.
     * Edit the file *robot/odometer.py* to **not print** voluminous messages, because they just fill up the log file.
     * Deploy with `pyinfra inventory.py deploy/deploy_services.py -y`
+* Next, we want to be able to start & stop those services from the laptop using pyinfra.
+    * Currently, there is a switch on the robot to start / stop the scanner motor.
+    * Create a new file *service_ctrl.py* in the desktop_code/folder with functions that will:
+        * restart scanner
+        * start & stop the odometer
+* Revise the mapper program to access these service_ctrl functions and run *while True* instead of for a specified number of seconds.
 
 ## The RasPiBot
 ![The RasPiBot](imgs/raspibot.jpeg)
