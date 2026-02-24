@@ -63,8 +63,12 @@ async def main(ogm):
     # Note: This will run forever until stopped
     listener_task = asyncio.create_task(subscriber.connect_and_subscribe())
 
-    # Restart the scanner, start the odometer
+    # Restart the scanner and set the scan motor running, start the odometer
+    print("Restarting the Scanner service")
     sc.restart_scanner()
+    print("Starting the Scan Motor")
+    sc.start_scan_mtr()
+    print("Starting the Odometer")
     sc.start_odometer()
     await asyncio.sleep(7)  # The odometer has to do some initialization
     
@@ -111,8 +115,10 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("Subscriber stopped manually.")
     finally:
-        # Stop the odometer
+        print("Stopping the Odometer")
         sc.stop_odometer()
+        print("Stopping the Scan Motor")
+        sc.stop_scan_mtr()
         # save the map
         np.save('my_map.npy', ogm.data)
         print("Map saved to my_map.npy")

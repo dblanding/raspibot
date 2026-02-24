@@ -427,18 +427,24 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
     * I also went through all the links on the LRP3 Robot Control Web interface and found nothing there that made me think I need a webserver.
     * So **scratch the webserver**. That's good news for me because now I can cross off *Learn JavaScript* from my *To Do* list.
 
-#### Streamling the process of launching the mapping behavior
+#### Streamling the process of launching the mapper
 * As noted above, there are a lot of steps that need to be taken in order to send the RasPiBot on a mapping run.
 * In order to streamline this process, let's begin by turning odometer.py into a **systemd service** which can be started and stopped.
     * Edit the file *deploy/deploy_services.py* to create the service.
     * Edit the file *robot/odometer.py* to **not print** voluminous messages, because they just fill up the log file.
     * Deploy with `pyinfra inventory.py deploy/deploy_services.py -y`
-* Next, we want to be able to start & stop those services from the laptop using pyinfra.
-    * Currently, there is a switch on the robot to start / stop the scanner motor.
-    * Create a new file *service_ctrl.py* in the desktop_code/folder with functions that will:
-        * restart scanner
-        * start & stop the odometer
-* Revise the mapper program to access these service_ctrl functions and run *while True* instead of for a specified number of seconds.
+* Also, we would like to be able to control the scan motor programatically.
+    * Currently, there is a *Run* / *Stop* switch on the robot to control the scanner motor.
+    * To control the scan motor programatically, create a new file *run_scan_mtr.py* in the robot/ folder and make it a service.
+        * When the service is started, GPIO pin 27 will be held *LOW*. It is connected by jumper to pin 17, causing the motor to run. (The physical switch must be *OPEN*.)
+        * When the service is stopped, *GPIO.cleanup()* will run on program exit, cleaning up and releasing GPIO resources. With the GPIO pin no longer held *LOW*, the motor will stop. If it doesn't stop on its own, restart the scanner service.
+    * To make this a service, edit the file *deploy/deploy_services.py*.
+    * Deploy with `pyinfra inventory.py deploy/deploy_services.py -y`
+* Implement *service_ctrl.py* on laptop with functions to start & stop these services on robot.
+* Revise the mapper program to:
+    * Use the service_ctrl functions to start and stop services as needed.
+    * *Run Forever* instead of for a specified number of seconds.
+        * *CTRL+C* to end program and save map to file.
 
 ## The RasPiBot
 ![The RasPiBot](imgs/raspibot.jpeg)
