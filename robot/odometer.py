@@ -32,9 +32,11 @@ for i in range(5, 0, -1):
     time.sleep(1)
 print("Calibrating IMU...")
 otos.calibrateImu()
+otos.setLinearScalar(1.0)
+otos.setAngularScalar(0.9976)
 
 # Account for OTOS location w/r/t robot center
-offset = qwiic_otos.Pose2D(0, 0, 0)
+offset = qwiic_otos.Pose2D(0.295, 0, 0)
 otos.setOffset(offset)
 
 # Set units for linear and angular measurements.
