@@ -7,10 +7,10 @@ import parameters
 RES = parameters.resolution
 WIDTH = parameters.width
 HEIGHT = parameters.height
-LFT = int(-parameters.width * parameters.orig_x_pos)
-RGT = int(parameters.width * (1 - parameters.orig_x_pos))
-BOT = int(-parameters.height * parameters.orig_y_pos)
-TOP = int(parameters.height * (1 - parameters.orig_y_pos))
+LFT = int(0 - parameters.orig_x_pos)
+RGT = int(parameters.width - parameters.orig_x_pos)
+BOT = int(0 - parameters.orig_y_pos)
+TOP = int(parameters.height - parameters.orig_y_pos)
 
 def p_from_log_odds(l):
     return 1.0 - (1.0 / (1.0 + np.exp(l)))
