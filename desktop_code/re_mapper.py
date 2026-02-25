@@ -128,13 +128,11 @@ async def main(ogm):
     await listener_task
 
 if __name__ == "__main__":
-    # Initialize OGM
-    ogm = Build_OGM(width=parameters.width,
-                    height=parameters.height,
-                    resolution=parameters.resolution,
-                    orig_x_pos=parameters.orig_x_pos,
-                    orig_y_pos=parameters.orig_y_pos)
+    # Load OGM from file
+    ogm = load_ogm()
+
     try:
+        # Continue building map
         asyncio.run(main(ogm))
     except KeyboardInterrupt:
         print("Subscriber stopped manually.")
