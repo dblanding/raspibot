@@ -75,6 +75,6 @@ if __name__ == "__main__":
     Q = scan_to_array(data[2]['scan'])
     P = scan_to_array(data[0]['scan'])
 
-    plot_data(Q, P, "P: prior scan", "Q: next scan")
+    plot_data(Q, P, "Q: next scan", "P: prior scan")
     plt.show()
 
