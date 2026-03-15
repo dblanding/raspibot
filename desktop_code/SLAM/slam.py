@@ -633,93 +633,6 @@ class GraphSLAM:
         plt.tight_layout()
         return fig
 
-# ============================================================================
-# USING YOUR OWN DATA
-# ============================================================================
-
-def example_with_real_data():
-    """
-    Example of how to use Graph SLAM with your own data
-    """
-    print("\nExample: Using Graph SLAM with Real Data")
-    print("=" * 60)
-    
-    # Initialize SLAM
-    slam = GraphSLAM(
-        map_width=1000,      # Adjust based on your environment size
-        map_height=1000,
-        resolution=0.1,     # 10cm per cell
-        origin=(-25.0, -25.0)  # Adjust to center your environment
-    )
-    
-    # Example: Load your data
-    # Assuming you have lists of poses and scans
-    # your_poses = load_poses_from_file("poses.txt")
-    # your_scans = load_scans_from_file("scans.txt")
-    
-    # For demonstration, let's show the expected format:
-    print("\nExpected data format:")
-    print("-" * 60)
-    
-    # Example pose from odometry
-    example_pose = Pose2D(x=1.5, y=2.3, theta=0.785)  # x, y in meters, theta in radians
-    print(f"Pose: x={example_pose.x}m, y={example_pose.y}m, theta={example_pose.theta}rad")
-    
-    # Example lidar scan
-    # If your lidar has 360 beams covering 360 degrees:
-    num_beams = 360
-    angles = np.linspace(-np.pi, np.pi, num_beams)  # -180 to +180 degrees
-    ranges = np.random.uniform(0.5, 10.0, num_beams)  # Distance measurements in meters
-    
-    example_scan = LidarScan(
-        ranges=ranges,
-        angles=angles,
-        max_range=10.0  # Maximum valid range of your lidar
-    )
-    print(f"Scan: {num_beams} beams, max_range={example_scan.max_range}m")
-    
-    print("\nProcessing data:")
-    print("-" * 60)
-    
-    # Process each pose and scan pair
-    # for pose, scan in zip(your_poses, your_scans):
-    #     slam.process_scan(pose, scan, use_icp=True)
-    
-    # For this example:
-    slam.process_scan(example_pose, example_scan, use_icp=True)
-    print("Processed 1 scan (example)")
-    
-    # After processing all data, do final optimization
-    # slam.optimize_full()
-    
-    # Get results
-    # optimized_poses = slam.get_poses()
-    # final_map = slam.get_map()
-    
-    # Visualize
-    # slam.visualize(show_trajectory=True, show_constraints=True)
-    # plt.savefig('my_slam_result.png')
-    # plt.show()
-    
-    print("\nData format notes:")
-    print("-" * 60)
-    print("1. Poses should be in a consistent world frame")
-    print("2. Scan angles are relative to robot's forward direction")
-    print("3. Ranges should be in meters (or consistent units)")
-    print("4. Invalid readings should be marked as NaN or > max_range")
-    print("5. Process scans in chronological order")
-    
-    print("\nTuning parameters:")
-    print("-" * 60)
-    print("If loop closures aren't detected:")
-    print("  - Increase: slam.loop_closure_distance_threshold (default: 2.0m)")
-    print("  - Decrease: slam.loop_closure_fitness_threshold (default: 0.6)")
-    print("\nIf ICP fails to converge:")
-    print("  - Increase: slam.icp.max_iterations (default: 50)")
-    print("  - Increase: slam.icp.max_correspondence_distance (default: 0.3m)")
-    print("\nIf map is too noisy:")
-    print("  - Increase: slam.odometry_information values")
-    print("  - Decrease: slam.loop_closure_information values")
 
 # Example of loading data from common formats
 def load_poses_from_npz(filename: str) -> List[Pose2D]:
@@ -764,7 +677,6 @@ def load_scans_from_npz(filename: str) -> List[LidarScan]:
         lidar_scans.append(ls)
     return lidar_scans
 
-# Quick start template
 def quick_start_template():
     """
     Quick start template for using your data
@@ -808,24 +720,8 @@ def quick_start_template():
         for i, pose in enumerate(optimized_poses):
             f.write(f"{i},{pose.x},{pose.y},{pose.theta}\n")
     
-    print("Quick start template ready!")
-    print("Uncomment the lines above and replace with your data files.")
-
 
 # Main execution
 if __name__ == "__main__":
-    # Run the main simulation example
-    import sys
-    
-    if len(sys.argv) > 1 and sys.argv[1] == "--example":
-        example_with_real_data()
-    elif len(sys.argv) > 1 and sys.argv[1] == "--ros":
-        example_ros_integration()
-    elif len(sys.argv) > 1 and sys.argv[1] == "--template":
-        quick_start_template()
-    else:
-        # Run full simulation
-        print("Running full Graph SLAM simulation...")
-        print("Use --example to see real data usage")
-        print("Use --template for quick start code")
-        print("Use --ros for ROS integration example\n")
+        
+    quick_start_template()
