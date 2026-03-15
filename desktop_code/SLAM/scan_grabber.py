@@ -14,7 +14,7 @@ import service_ctrl as sc
 
 # --- Save data ---
 def save_data(data, filename="scan_data.pkl"):
-    """Serializes and saves an OGM instance to a binary file."""
+    """Serializes and saves data to a binary file."""
     # Open file in write-binary mode ('wb')
     with open(filename, 'wb') as file:
         pickle.dump(data, file)
@@ -123,14 +123,14 @@ async def main(ogm):
                     pose = json.loads(message)
                     print(f"pose: {pose}")
 
-            # Update map
-            if pose and scan:
-                start_time = time.monotonic()
-                data.append({'pose': pose, 'scan': scan)
-                end_time = time.monotonic()
-                if parameters.debug:
-                    elapsed = end_time - start_time
-                    print(f"Execution time for update: {elapsed} sec.")
+        # Update map
+        if pose and scan:
+            start_time = time.monotonic()
+            data.append({'pose': pose, 'scan': scan})
+            end_time = time.monotonic()
+            if parameters.debug:
+                elapsed = end_time - start_time
+                print(f"Execution time for update: {elapsed} sec.")
 
     # The listener_task is still running. In a real app (e.g., web server)
     # the main program would continue to run without blocking.
