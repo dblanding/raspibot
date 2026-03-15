@@ -35,8 +35,10 @@ def run():
         data = []
         # rplidar reports: angle in degrees, distance in mm
         # convert: angle -> radians, distance -> meters
+        # negate angle. RPLidar spins CW with angle values increasing
+        # but we want angle values to be positive going CCW
         for (_, angle, distance) in scan:
-            data.append({"a": round(angle*pi/180, 4),
+            data.append({"a": round(-angle*pi/180, 4),
                          "d": round(distance*0.001, 5),
                          "t": time.monotonic()})
 
