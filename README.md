@@ -453,3 +453,7 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
 
 ![OGM w/ grid lines](imgs/ogm_w_grid_lines.png)
 
+## Pose-Graph SLAM working! Here it is driving around the *Kitchen Loop*, sending a fresh scan and pose via MQTT once per second.
+
+![SLAM](imgs/my_slam_map.png)
+
