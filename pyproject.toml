@@ -10,3 +10,8 @@ dependencies = [
     "numpy>=2.4.2",
     "paho-mqtt>=2.1.0",
 ]
+
+[tool.uv.workspace]
+members = [
+    "desktop_code/SLAM",
+]

@@ -12,35 +12,15 @@ from build_ogm import Build_OGM
 import parameters
 import service_ctrl as sc
 
+scan_file = "Scan_Pose_Data/scan_data.pkl"
+
 # --- Save data ---
-def save_data(data, filename="scan_data.pkl"):
+def save_data(data, filename=scan_file):
     """Serializes and saves data to a binary file."""
     # Open file in write-binary mode ('wb')
     with open(filename, 'wb') as file:
         pickle.dump(data, file)
     print(f"data saved to {filename}")
-
-# --- Saving the OGM instance ---
-def save_ogm(ogm, filename="my_ogm.pkl"):
-    """Serializes and saves an OGM instance to a binary file."""
-    # Open file in write-binary mode ('wb')
-    with open(filename, 'wb') as file:
-        pickle.dump(ogm, file)
-    print(f"ogm saved to {filename}")
-
-# --- Loading the OGM instance ---
-def load_ogm(filename="my_ogm.pkl"):
-    """Loads and deserializes an OGM instance from a binary file."""
-    if os.path.exists(filename):
-        # Open file in read-binary mode ('rb')
-        with open(filename, 'rb') as file:
-            ogm = pickle.load(file)
-        print(f"ogm loaded from {filename}")
-        return ogm
-    else:
-        print(f"ogm File {filename} not found.")
-        return None
-
 
 class MQTTSubscriber:
     def __init__(self, broker, port, topics):

@@ -6,6 +6,9 @@ from scipy.optimize import least_squares
 from scipy.spatial import KDTree
 from collections import defaultdict
 
+pose_data_file = "Scan_Pose_Data/pose_data.npz"
+scan_data_file = "Scan_Pose_Data/scan_data.npz"
+
 @dataclass
 class Pose2D:
     """Represents a 2D pose with x, y position and theta orientation"""
@@ -683,15 +686,15 @@ def quick_start_template():
     """
     # 1. Initialize SLAM
     slam = GraphSLAM(
-        map_width=400, # was 1000
-        map_height=400, # was 1000
-        resolution=0.05,
-        origin=(-10, -10) # was -25.0, -25.0
+        map_width=300,  # pixels
+        map_height=300,  # pixels
+        resolution=0.05,  # meters
+        origin=(-4, -7)  # lower left corner (meters)
     )
     
     # 2. Load your data (replace with your data loading code)
-    poses = load_poses_from_npz("pose_data.npz")
-    scans = load_scans_from_npz("scan_data.npz")
+    poses = load_poses_from_npz(pose_data_file)
+    scans = load_scans_from_npz(scan_data_file)
     
     # 3. Process data
     for i, (pose, scan) in enumerate(zip(poses, scans)):
@@ -709,14 +712,14 @@ def quick_start_template():
     
     # 6. Visualize and save
     slam.visualize(show_trajectory=True, show_constraints=True)
-    plt.savefig('my_slam_map.png', dpi=200, bbox_inches='tight')
+    plt.savefig('Scan_Pose_Data/my_slam_map.png', dpi=200, bbox_inches='tight')
     plt.show()
     
     # 7. Optional: Save map to file
-    np.save('occupancy_map.npy', final_map)
+    np.save('Scan_Pose_Data/occupancy_map.npy', final_map)
     
     # 8. Optional: Save optimized poses
-    with open('optimized_poses.csv', 'w') as f:
+    with open('Scan_Pose_Data/optimized_poses.csv', 'w') as f:
         for i, pose in enumerate(optimized_poses):
             f.write(f"{i},{pose.x},{pose.y},{pose.theta}\n")
     

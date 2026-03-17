@@ -4,8 +4,15 @@ import numpy as np
 import os
 import pickle
 
+# input filename
+robot_data_file = "Scan_Pose_Data/scan_data.pkl"
 
-def load_data(filename="scan_data.pkl"):
+# output filenames
+scan_data_file = "Scan_Pose_Data/scan_data.npz"
+pose_data_file = "Scan_Pose_Data/pose_data.npz"
+pose_data_csv_file = "Scan_Pose_Data/pose_data.csv"
+
+def load_data(filename=robot_data_file):
     """Loads and deserializes an OGM instance from a binary file."""
     if os.path.exists(filename):
         # Open file in read-binary mode ('rb')
@@ -69,9 +76,8 @@ if __name__ == "__main__":
         scan_lengths.append(len(angles))
 
     # save scan data
-    filename = 'scan_data.npz'
     np.savez_compressed(
-        filename,
+        scan_data_file,
         angles = np.array(all_angles),
         ranges = np.array(all_ranges),
         scan_lengths = np.array(scan_lengths),
@@ -79,9 +85,16 @@ if __name__ == "__main__":
         )
 
     # save pose data
-    posefilename = 'pose_data.npz'
+    # first in csv format
+    with open(pose_data_csv_file, 'w') as file:
+        for pose in poses:
+            x, y, z = pose
+            file.writelines(f"{x}, {y}, {z}\n")
+
+    # second in npz format (because it re-uses 'poses' name)
     np.savez_compressed(
-        posefilename,
+        pose_data_file,
         poses = np.array(poses),
         num_poses = len(poses)
         )
+    

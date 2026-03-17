@@ -2,7 +2,9 @@
 
 import numpy as np
 
-scan_filename = 'scan_data.npz'
+pose_filename = "Scan_Pose_Data/pose_data.npz"
+scan_filename = "Scan_Pose_Data/scan_data.npz"
+
 with np.load(scan_filename) as scan_data:
     all_angles = scan_data['angles']
     all_ranges = scan_data['ranges']
@@ -29,7 +31,6 @@ print(f"scans[0] ranges = {scans[0]['ranges']}")
 for n in range(num_scans):
     print(f"scans[{n}] length = {scan_lengths[n]}")
 
-pose_filename = 'pose_data.npz'
 with np.load(pose_filename) as pose_data:
     num_poses = pose_data['num_poses']
     poses = pose_data['poses']
