@@ -6,8 +6,14 @@ from scipy.optimize import least_squares
 from scipy.spatial import KDTree
 from collections import defaultdict
 
+# Input filenames
 pose_data_file = "Scan_Pose_Data/pose_data.npz"
 scan_data_file = "Scan_Pose_Data/scan_data.npz"
+
+# Output filenames
+slam_map_file = "Scan_Pose_Data/my_slam_map.png"
+save_ogm_file = "Scan_Pose_Data/occupancy_map.npy"
+save_opt_poses_file = "Scan_Pose_Data/optimized_poses.csv"
 
 @dataclass
 class Pose2D:
@@ -712,14 +718,14 @@ def quick_start_template():
     
     # 6. Visualize and save
     slam.visualize(show_trajectory=True, show_constraints=True)
-    plt.savefig('Scan_Pose_Data/my_slam_map.png', dpi=200, bbox_inches='tight')
+    plt.savefig(slam_map_file, dpi=200, bbox_inches='tight')
     plt.show()
     
     # 7. Optional: Save map to file
-    np.save('Scan_Pose_Data/occupancy_map.npy', final_map)
+    np.save(save_ogm_file, final_map)
     
     # 8. Optional: Save optimized poses
-    with open('Scan_Pose_Data/optimized_poses.csv', 'w') as f:
+    with open(save_opt_poses_file, 'w') as f:
         for i, pose in enumerate(optimized_poses):
             f.write(f"{i},{pose.x},{pose.y},{pose.theta}\n")
     

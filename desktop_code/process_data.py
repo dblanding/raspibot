@@ -1,4 +1,4 @@
-# process data and save for use by slam program
+# process (sync pose) and save data in format used by slam program
 
 import numpy as np
 import os
@@ -12,8 +12,14 @@ scan_data_file = "Scan_Pose_Data/scan_data.npz"
 pose_data_file = "Scan_Pose_Data/pose_data.npz"
 pose_data_csv_file = "Scan_Pose_Data/pose_data.csv"
 
-def load_data(filename=robot_data_file):
-    """Loads and deserializes an OGM instance from a binary file."""
+def load_data(filename):
+    """
+    data is a list of dictionaries {'pose': pose, 'scan': scan}
+    collected periodicaly from robot, and stored in a .pkl file.
+    pose is a dict: {"x": x, "y": y, "h": hdg, "t": time,
+        "xr": x_rate, "yr": y_rate, "hr": hdg_rate} dict
+    scan is a list of dicts: {'a': angle, 'd': dist, 't': time}
+    """
     if os.path.exists(filename):
         # Open file in read-binary mode ('rb')
         with open(filename, 'rb') as file:
@@ -26,9 +32,10 @@ def load_data(filename=robot_data_file):
 
 def sync_pose(robot_scan, robot_pose):
     """
-    robot_scan: list of {'a': , 'd': , 't': } dictionaries
+    Estimated value of pose synced to time of mid-scan
     robot_pose: {"x": , "y": , "h": , "t": , "xr": , "yr": , "hr": } dict
-    Return estimated pose at time of mid-scan
+    robot_scan: list of {'a': , 'd': , 't': } dictionaries
+    Return estimated pose.
     """
     # Find time difference between mid-scan and pose
     mid_scan_idx = len(robot_scan) // 2
@@ -39,12 +46,18 @@ def sync_pose(robot_scan, robot_pose):
     # Estimate pose value at time of mid-scan
     rx = robot_pose["x"] + robot_pose["xr"] * time_diff
     ry = robot_pose["y"] + robot_pose["yr"] * time_diff
-    ryaw = robot_pose["h"] + robot_pose["hr"] * time_diff
-    return rx, ry, ryaw
+    rtheta = robot_pose["h"] + robot_pose["hr"] * time_diff
+    return rx, ry, rtheta
 
+def save_poses_csv(poses, filename):
+    with open(filename, 'w') as file:
+        for pose in poses:
+            x, y, z = pose
+            file.writelines(f"{x}, {y}, {z}\n")
+    
 
 if __name__ == "__main__":
-    data = load_data()
+    data = load_data(robot_data_file)
     prev_pose = (0, 0, 0)  # Initial value
 
     # Prepare for saving
@@ -53,6 +66,7 @@ if __name__ == "__main__":
     all_ranges = []
     scan_lengths = []
 
+    # Step through each data point
     for n in range(0, len(data)):
         print(n)
         print(f"{prev_pose = }")
@@ -60,12 +74,14 @@ if __name__ == "__main__":
         print(f"{len(robot_scan) = }")
         robot_pose = data[n]['pose']
         print(f"{robot_pose = }")
-        synced_pose = sync_pose(robot_scan, robot_pose)  # estimated pose at time of mid-scan
+
+        # estimate 'synced' pose at time of mid-scan
+        synced_pose = sync_pose(robot_scan, robot_pose)
         print(f"{synced_pose = }")
         prev_pose = synced_pose
         print()
         
-        # Collect angles and ranges
+        # Separate angles and ranges into 2 parallel arrays
         scandict = {scan['a']: scan['d']
                     for scan in robot_scan}
         angles = np.array(list(scandict.keys()))
@@ -75,7 +91,7 @@ if __name__ == "__main__":
         all_ranges.extend(ranges)
         scan_lengths.append(len(angles))
 
-    # save scan data
+    # save scan data in numpy compressed format
     np.savez_compressed(
         scan_data_file,
         angles = np.array(all_angles),
@@ -84,14 +100,11 @@ if __name__ == "__main__":
         num_scans = len(data)
         )
 
-    # save pose data
-    # first in csv format
-    with open(pose_data_csv_file, 'w') as file:
-        for pose in poses:
-            x, y, z = pose
-            file.writelines(f"{x}, {y}, {z}\n")
+    # save pose data in csv format
+    save_poses_csv(poses, pose_data_csv_file)
 
-    # second in npz format (because it re-uses 'poses' name)
+    # Save poses in npz format
+    # (Do this last because it re-defines 'poses' name)
     np.savez_compressed(
         pose_data_file,
         poses = np.array(poses),
