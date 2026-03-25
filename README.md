@@ -334,6 +334,29 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
 
 ![MQTTUI window 2](imgs/mqttui2.png)
 
+#### Summarizing the way the scanner works:
+* The scanner is implemented as a systemd service which starts on powerup, and which can be toggled between 2 modes of operation by controling whether GPIO pin 17 is held LOW:
+    * Idle:
+        * GPIO pin 17 NOT held LOW
+        * scan motor is stopped
+        * publishes laser health info
+    * Run:
+        * Triggered by holding GPIO pin 17 LOW
+        * Scan motor runs
+        * publishes scan data
+* One way to control the scanner motor is to use a physical *Run* / *Stop* switch on the robot which is used to ground GPIO pin 17.
+* But it would be nice to be able to do this programatically.
+    * Create a new file *run_scan_mtr.py* in the robot/ folder and make it a service.
+        * When the service is started, GPIO pin 27 is held *LOW*. It is connected by jumper to GPIO pin 17, causing the motor to run. (The physical switch must be *OPEN*.)
+        * When the service is stopped, *GPIO.cleanup()* will run on program exit, cleaning up and releasing GPIO resources. With the GPIO pin no longer held *LOW*, the motor will stop. If it doesn't stop on its own, restart the scanner service.
+    * To make this a service, edit the file *deploy/deploy_services.py*.
+    * Deploy with `pyinfra inventory.py deploy/deploy_services.py -y`
+
+
+
+
+
+
 #### Write Odometer program to read pose data from Sparkfun Optical Tracking Odometry Sensor and publish it on topic 'odom/pose'
 * The program *[robot/odometer.py](robot/odometer.py)* reads pose data (x, y, heading) from the OTOS and publishes it as JSON to the MQTT broker.
 * Check distance and angle by driving 1 meter (in X), turning around and returning to start position.
@@ -427,25 +450,16 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
     * I also went through all the links on the LRP3 Robot Control Web interface and found nothing there that made me think I need a webserver.
     * So **scratch the webserver**. That's good news for me because now I can cross off *Learn JavaScript* from my *To Do* list.
 
-#### Streamling the process of launching the mapper
+#### Streamlining the process of launching the mapper
 * As noted above, there are a lot of steps that need to be taken in order to send the RasPiBot on a mapping run.
 * In order to streamline this process, let's begin by turning odometer.py into a **systemd service** which can be started and stopped.
     * Edit the file *deploy/deploy_services.py* to create the service.
     * Edit the file *robot/odometer.py* to **not print** voluminous messages, because they just fill up the log file.
     * Deploy with `pyinfra inventory.py deploy/deploy_services.py -y`
-* Also, we would like to be able to control the scan motor programatically.
-    * Currently, there is a *Run* / *Stop* switch on the robot to control the scanner motor.
-    * To control the scan motor programatically, create a new file *run_scan_mtr.py* in the robot/ folder and make it a service.
-        * When the service is started, GPIO pin 27 will be held *LOW*. It is connected by jumper to pin 17, causing the motor to run. (The physical switch must be *OPEN*.)
-        * When the service is stopped, *GPIO.cleanup()* will run on program exit, cleaning up and releasing GPIO resources. With the GPIO pin no longer held *LOW*, the motor will stop. If it doesn't stop on its own, restart the scanner service.
-    * To make this a service, edit the file *deploy/deploy_services.py*.
-    * Deploy with `pyinfra inventory.py deploy/deploy_services.py -y`
-* Implement *service_ctrl.py* on laptop with functions to start & stop these services on robot.
-* Revise the mapper program to:
-    * Use the service_ctrl functions to start and stop services as needed.
-    * *Run Forever* instead of for a specified number of seconds.
-        * *CTRL+C* to end program and save map to file.
-
+* Another idea I had was to implement a *service_ctrl.py* program on my laptop that would use pyinfra to start & stop these services on the robot.
+* Then I built a [GUI program](https://github.com/dblanding/robot-control-gui) that runs on the laptop and connects to the robot via ssh.
+* Once I got the GUI program running, I realized that using buttons on the GUI to start & stop services on the robot was preferable, so I removed the desktop_code that used pyinfra.
+ 
 ## The RasPiBot
 ![The RasPiBot](imgs/raspibot.jpeg)
 
