@@ -459,7 +459,25 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
 * Another idea I had was to implement a *service_ctrl.py* program on my laptop that would use pyinfra to start & stop these services on the robot.
 * Then I built a [GUI program](https://github.com/dblanding/robot-control-gui) that runs on the laptop and connects to the robot via ssh.
 * Once I got the GUI program running, I realized that using buttons on the GUI to start & stop services on the robot was preferable, so I removed the desktop_code that used pyinfra.
- 
+
+## Summary of wireless protocols used to connect to robot
+#### Bluetooth Low Energy (BLE)
+* A joystick controller has a Pico W set up as a BLE server, sending joystick position messages.
+* A Pico W onboard the robot is the BLE client, listening for joystick messages and operating the 2 DC motors accordingly.
+
+#### Message Queuing Telemetry Transport (MQTT)
+* The robot has an mqtt broker which supports the publishing of Lidar and Odometry data
+* Programs on the laptop can subscribe to those messages, and use them to build maps.
+
+#### MJPEG stream (TCP)
+* The raspberry Pi camera onboard the robot sends a video stream via TCP. A socket is set up by the GUI program to receive the video stream and display it.
+
+#### Secure Shell (SSH)
+* A click of the *Connect* button on the GUI program establishes an SSH connection to the robot using public-key authentication. Commands can then be issued directly to the robot from the GUI program. 
+
+## The [GUI](https://github.com/dblanding/robot-control-gui)
+![Graphical User Interface (GUI)](imgs/gui.png)
+
 ## The RasPiBot
 ![The RasPiBot](imgs/raspibot.jpeg)
 
