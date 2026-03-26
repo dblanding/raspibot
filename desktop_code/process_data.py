@@ -1,4 +1,5 @@
-# process (sync pose) and save data in format used by slam program
+# process (sync pose to scan) and
+# save data in format used by slam program
 
 import numpy as np
 import os

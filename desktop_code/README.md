@@ -1,4 +1,10 @@
-# Implementing SLAM, a work in progress
+# Implementing SLAM, a learning journey
+
+## Along the learning path, older code has been moved:
+* Basic mapping code -> *early_code/* folder
+* Investigations into ICP using data from a small loop in office -> *office_loop/* folder
+
+## Eventually arrived at [slam.py](slam.py), a working SLAM program
 * Drive Kitchen loop with reflective surfaces masked.
 * Run *scan_grabber.py* during loop to collect scan & pose data @ 1/s, saved in file *scan_data.pkl*
     * Scan data includes timestamps
@@ -17,3 +23,6 @@
     * [x] load_data.py
     * [x] negate_scan_angles.py (although we shouldn't be needing this any more)
 * Saved *Scan_Pose_Data_3-16-26* folder containing data from 1st SLAM trip through Kitchen loop.
+
+### Latest SLAM map
+![SLAM Map](Scan_Pose_Data/my_slam_map.png)

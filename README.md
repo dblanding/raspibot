@@ -475,7 +475,7 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
 #### Secure Shell (SSH)
 * A click of the *Connect* button on the GUI program establishes an SSH connection to the robot using public-key authentication. Commands can then be issued directly to the robot from the GUI program. 
 
-## The [GUI](https://github.com/dblanding/robot-control-gui)
+## The [GUI](https://github.com/dblanding/robot-control-gui) Control Panel
 ![Graphical User Interface (GUI)](imgs/gui.png)
 
 ## The RasPiBot
