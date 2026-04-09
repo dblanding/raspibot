@@ -361,7 +361,7 @@ class GraphSLAM:
         self.ray_caster = BresenhamRayCast()
         
         # Parameters
-        self.loop_closure_distance_threshold = 2.0  # meters
+        self.loop_closure_distance_threshold = 1.0  # meters (was 2.0)
         self.loop_closure_fitness_threshold = 0.6  # ICP fitness score
         self.min_scans_between_loop_closure = 20  # Avoid checking recent scans
         
