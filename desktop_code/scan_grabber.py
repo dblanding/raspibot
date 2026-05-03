@@ -67,7 +67,7 @@ class MQTTSubscriber:
 async def main(ogm):
     global data
     broker_address = "192.168.1.85"
-    mqtt_topics = ["lidar/data", "odom/pose"]
+    mqtt_topics = ["robot/sensor/lidar/scan", "robot/odometry/pose"]
     
     subscriber = MQTTSubscriber(broker_address, 1883, mqtt_topics)
     pose = None

@@ -1,9 +1,11 @@
+# scanner.py
 import paho.mqtt.client as mqtt
 import json
 from math import pi
 import RPi.GPIO as GPIO
 from rplidar import RPLidar
 import time
+from topics import Topics
 
 INPUT_PIN = 17 # GPIO pin 17 (Physical pin 11)
 GPIO.setmode(GPIO.BCM)
@@ -11,8 +13,8 @@ GPIO.setup(INPUT_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # MQTT Setup
 broker = "localhost"
-topic = "lidar/data"
-idle_topic = "lidar/info"
+topic = Topics.LIDAR_SCAN
+idle_topic = Topics.LIDAR_STATUS
 mqtt_username = "robot"
 mqtt_password = "robot"
 client = mqtt.Client()

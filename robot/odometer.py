@@ -1,14 +1,16 @@
+# odometer.py
 import qwiic_otos
 import paho.mqtt.client as mqtt
 from math import pi
 import time
 import json
 import sys
+from topics import Topics
 
 # --- MQTT Configuration ---
-MQTT_BROKER = "localhost"  # Replace with your MQTT broker address (e.g., "broker.hivemq.com" or a local IP)
-MQTT_PORT = 1883           # Default MQTT port
-MQTT_TOPIC = "odom/pose"   # The topic to publish data to
+MQTT_BROKER = "localhost"
+MQTT_PORT = 1883
+MQTT_TOPIC = Topics.ODOM_POSE
 MQTT_USERNAME = "robot"
 MQTT_PASSWORD = "robot"
 client = mqtt.Client()
