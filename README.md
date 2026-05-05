@@ -460,6 +460,35 @@ Chapter 7 of LRP3 shows how to create services that will start on powerup. Using
 * Then I built a [GUI program](https://github.com/dblanding/robot-control-gui) that runs on the laptop and connects to the robot via ssh.
 * Once I got the GUI program running, I realized that using buttons on the GUI to start & stop services on the robot was preferable, so I removed the desktop_code that used pyinfra.
 
+## Implement ability to drive motors programmatically from Pi
+
+1. Wire the UART connection from Pi to Pico
+    * Raspberry Pi GPIO 14 (TX) → Pico GP1 (RX)
+    * Raspberry Pi GPIO 15 (RX) → Pico GP0 (TX)
+    * Raspberry Pi GND → Pico GND
+2. Enable UART on Pi:
+```
+sudo raspi-config
+# Interface Options → Serial Port
+# Login shell: No
+# Serial hardware: Yes
+sudo reboot
+```
+3. Revise Pico *main.py* file to add UART control from the Pi while keeping the BLE joystick working. Key changes:
+    1. Added UART setup at the top
+    2. Created UARTCommander class to handle Pi commands
+    3. Split into 3 async tasks:
+        * ble_handler() - existing BLE code
+        * uart_reader() - Reads Pi commands in background
+        * motor_controller() - Controls motors with priority logic
+    4. Priority logic: BLE joystick always wins, Pi commands only used when no recent BLE input AND mode is AUTO
+4. Create *test_pi_control.py* to make sure the robot will:
+    * Always respond to BLE joystick when active
+    * Fall back to Pi commands after 500ms of no joystick (if in AUTO mode)
+    * Stop if in TELEOP mode with no joystick
+5. Create *test_max_spd.py* to calibrate value of `MAX_SPEED_MPS` (meters per second)
+
+
 ## Summary of wireless protocols used to connect to robot
 #### Bluetooth Low Energy (BLE)
 * A joystick controller has a Pico W set up as a BLE server, sending joystick position messages.
