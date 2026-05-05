@@ -5,12 +5,15 @@ import aiomqtt
 import json
 import numpy as np
 import pickle
-import sys
 import time
 import os
 from build_ogm import Build_OGM
 import parameters
 import service_ctrl as sc
+import sys
+
+sys.path.insert(0, '../robot')
+from topics import Topics
 
 scan_file = "Scan_Pose_Data/scan_data.pkl"
 
@@ -67,7 +70,7 @@ class MQTTSubscriber:
 async def main(ogm):
     global data
     broker_address = "192.168.1.85"
-    mqtt_topics = ["robot/sensor/lidar/scan", "robot/odometry/pose"]
+    mqtt_topics = [Topics.LIDAR_SCAN, Topics.ODOM_POSE]
     
     subscriber = MQTTSubscriber(broker_address, 1883, mqtt_topics)
     pose = None
@@ -94,11 +97,11 @@ async def main(ogm):
         await asyncio.sleep(1)
         current_messages = subscriber.get_latest_messages()
         for topic, message in current_messages.items():
-            if topic == "lidar/data":
+            if topic == Topics.LIDAR_SCAN:
                 if message:
                     scan = json.loads(message)
                     print(f"scan len: {len(scan)}")
-            elif topic == "odom/pose":
+            elif topic == Topics.ODOM_POSE:
                 if message:
                     pose = json.loads(message)
                     print(f"pose: {pose}")
