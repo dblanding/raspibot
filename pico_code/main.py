@@ -16,6 +16,9 @@ import time
 from machine import Pin, UART
 from mtr import mtr1, mtr3
 
+# Global for motor_controller
+last_uart_cmd_time = time.ticks_ms()
+
 # Setup onboard LED
 led = Pin("LED", Pin.OUT, value=0)
 
@@ -107,7 +110,8 @@ class UARTCommander:
                 return {
                     'type': 'VELOCITY',
                     'linear': linear,
-                    'angular': angular
+                    'angular': angular,
+                    'timestamp': time.ticks_ms()
                 }
             elif cmd.startswith("M,"):
                 # Mode command: M,AUTO or M,TELEOP
@@ -143,6 +147,10 @@ async def uart_reader():
                         cmd = uart_cmd.parse_command(line)
                         if cmd:
                             print(f"Pi cmd: {cmd}")
+                            # Store timestamp globally for motor_controller
+                            if 'timestamp' in cmd:
+                                global last_uart_cmd_time
+                                last_uart_cmd_time = cmd['timestamp']
             except Exception as e:
                 print(f"UART error: {e}")
         await asyncio.sleep(0.01)  # Check UART every 10ms
@@ -158,8 +166,11 @@ async def motor_controller(ble_active, js_vals_shared):
     Background task to control motors.
     Priority: BLE joystick > Pi commands
     """
+    global last_uart_cmd_time  # ← Use the global one!
+    
     last_ble_time = time.ticks_ms()
-    ble_timeout_ms = 500  # Switch to AUTO after 500ms of no BLE
+    ble_timeout_ms = 500
+    uart_timeout_ms = 200
     
     while True:
         try:
@@ -187,13 +198,21 @@ async def motor_controller(ble_active, js_vals_shared):
             elif time.ticks_diff(time.ticks_ms(), last_ble_time) > ble_timeout_ms:
                 # No recent BLE input
                 if uart_cmd.mode == "AUTO":
-                    # Use Pi velocity commands
-                    s1, s3 = uart_cmd.set_velocity(
-                        uart_cmd.last_linear,
-                        uart_cmd.last_angular
-                    )
-                    mtr1.drive(s1)
-                    mtr3.drive(s3)
+                    # Check if UART command is recent
+                    if time.ticks_diff(time.ticks_ms(), last_uart_cmd_time) < uart_timeout_ms:
+                        # Use Pi velocity commands
+                        s1, s3 = uart_cmd.set_velocity(
+                            uart_cmd.last_linear,
+                            uart_cmd.last_angular
+                        )
+                        mtr1.drive(s1)
+                        mtr3.drive(s3)
+                    else:
+                        # UART timeout - STOP!
+                        uart_cmd.last_linear = 0.0
+                        uart_cmd.last_angular = 0.0
+                        mtr1.stop()
+                        mtr3.stop()
                 else:
                     # TELEOP mode but no joystick - stop
                     mtr1.stop()

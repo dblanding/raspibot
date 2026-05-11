@@ -32,6 +32,7 @@ class Topics:
     NAV_CMD_VEL = 'robot/navigation/cmd_vel'
     
     # Mapping
+    MAP_GRID = 'robot/map/grid'
     MAP_OCCUPANCY = 'robot/map/occupancy'
     MAP_UPDATE = 'robot/map/update'
     MAP_METADATA = 'robot/map/metadata'

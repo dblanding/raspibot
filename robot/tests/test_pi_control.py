@@ -55,7 +55,7 @@ class RobotCommander:
         time.sleep(1)
         
         print("\n6. Rotate in place (counter-clockwise)")
-        self.set_velocity(0.0, 0.5)  # 0.5 rad/s
+        self.set_velocity(0.0, 2.1)  # 360 degrees
         time.sleep(3)
         
         print("\n7. Stop")
