@@ -2,25 +2,29 @@
 """
 Central topic definitions for robot MQTT communication.
 Single Point Of Truth (S.P.O.T.)for all topic names.
+Only some of these topics are actually in use.
+There are no hard-coded topics being used.
 """
 
 class Topics:
     """MQTT topic names for robot system"""
     
     # Sensors
-    LIDAR_SCAN = 'robot/sensor/lidar/scan'
-    LIDAR_STATUS = 'robot/sensor/lidar/status'
+    LIDAR_SCAN = 'robot/sensor/lidar/scan'  # in use
+    LIDAR_STATUS = 'robot/sensor/lidar/status'  # in use
     CAMERA_IMAGE = 'robot/sensor/camera/image'
     CAMERA_COMPRESSED = 'robot/sensor/camera/compressed'
     IMU_DATA = 'robot/sensor/imu/data'
     
     # Odometry
-    ODOM_POSE = 'robot/odometry/pose'
+    ODOM_POSE = 'robot/odometry/pose'   # Raw odometry (odom frame)
+    POSE = "robot/pose"                 # Localized pose (map frame)
+    INITIAL_POSE = "robot/initialpose"  # Set initial pose
     ODOM_VELOCITY = 'robot/odometry/velocity'
     ODOM_OPTICAL = 'robot/odometry/optical'
     
     # Motor Control
-    MOTOR_CMD = 'robot/motor/cmd'
+    MOTOR_CMD = 'robot/motor/cmd'  # in use
     MOTOR_STATUS = 'robot/motor/status'
     MOTOR_LEFT_ENCODER = 'robot/motor/left/encoder'
     MOTOR_RIGHT_ENCODER = 'robot/motor/right/encoder'

@@ -178,7 +178,7 @@ doug@raspibot:~/robot $ uv run python robot/tests/rplidar_test.py
         * Add the *sparkfun-qwiic-i2c* library: `uv add sparkfun-qwiic-i2c`
         * run `uv run python robot/tests/otos_test.py`
     * It works!
-* To do: Calibrate the OTOS per instructions on [Adafruit video](https://www.youtube.com/watch?v=WSELKAIJeFk&t=4s).
+* [Calibrate the OTOS](docs/calibrate_otos.md).
 
 ## Additional steps to setting up *pyinfra*
 #### Create a file for updating code, which we can keep for later.
