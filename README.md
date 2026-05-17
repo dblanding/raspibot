@@ -277,7 +277,7 @@ Several services will run on the RasPi
     * Test: `ssh doug@raspibot.local` then run `python robot/tests/gpio_test.py`
 
 #### Add the systemD scanner service
-Chapter 7 of LRP3 shows how to create services that will start on powerup. Using a similar approach, create a scanner service that starts on powerup, with the scan motor initially turned off. When the service is *awakened* by pulling a GPIO pin *Low*, it publishes scan data  on the topic *lidar/data*.
+Chapter 7 of LRP3 shows how to create services that will start on powerup. Using a similar approach, create a scanner service that starts on powerup, with the scan motor initially turned off. When the service is *awakened* by pulling a GPIO pin *Low*, it publishes scan data  on mqtt.
 
 * Create the file *deploy/service_template.j2*
 * Create the file *deploy/deploy_services.py*

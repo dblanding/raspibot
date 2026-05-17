@@ -45,6 +45,13 @@ deploy_service("odometer","robot/odometer.py",
                False, code.changed)
 
 code = files.put(
+    name="Update motor_control code",
+    src="robot/motor_control.py", dest="robot/motor_control.py")
+
+deploy_service("motor_control","robot/motor_control.py", 
+               False, code.changed)
+
+code = files.put(
     name="Update run_scan_mtr code",
     src="robot/run_scan_mtr.py", dest="robot/run_scan_mtr.py")
 
