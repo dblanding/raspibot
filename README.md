@@ -14,7 +14,6 @@ but gradually evolved into more of a journal where I keep track of the steps tak
     * Slamtec RPLidar A1 distance sensing (connected via Raspi USB)
     * [Sparkfun Optical Tracking Odometry Sensor](https://www.sparkfun.com/products/24904) (connected to Raspi I2C)
         * [YouTube video](https://www.youtube.com/watch?v=WcCNC8wExUc&t=120s) discusses calibration process
-    * DC power (See below) 
     * Wheel motors controlled by Raspberry Pi Pico directly.
     * Teleop control via BLE between 2 Picos as described in this [BLE Joystick Controlled Mecanum Car](https://github.com/dblanding/BLE-Joystick-Controlled-Mecanum-Car) project.
         * The driver station is the BLE server.
@@ -25,13 +24,11 @@ but gradually evolved into more of a journal where I keep track of the steps tak
 
 ## DC Power
 
-* Initially, I planned for the [Waveshare UPS Module 3S](https://www.amazon.com/waveshare-Uninterruptible-UPS-Module-3S/dp/B0BQC2WNR8/ref=ast_sto_dp_puis) (3x 18650 batts) to supply both the Raspberry Pi power and the power to the Pico/motors.
-    * I will use the built in Waveshare battery monitoring (I2C) using [INA219.py](https://drive.google.com/file/d/1rSbdvlRwfYJuLa_MSni0Q6e7lDZz0r6w/view)
-* That turned out to be untenable. During pure purusuit driving along a path of waypoints, the red light on the Raspberry Pi would blink off, signalling brownout. 
+* DC power provided by the [Waveshare UPS Module 3S](https://www.waveshare.com/ups-module-3s.htm) (3x 18650 batts) with built in battery monitoring (I2C) using [INA219.py](https://drive.google.com/file/d/1rSbdvlRwfYJuLa_MSni0Q6e7lDZz0r6w/view)
+    * The Raspberry Pi will be powered by the regulated 5V rail
+    * The Pico and motors will be attached to a [Waveshare Pico Motor Driver Board](https://www.waveshare.com/pico-motor-driver.htm), which will be powered by the 12V output of the 3 batteries connected in series.
 
-* I then revised the power plan so the Pico and motors will be powered separately from the Pi:
-    * The Pico and motors will be powered by a 3S LiPo battery (11.7 V)
-    * The Waveshare UPS Module will just power the Pi.
+* At one point, the Raspberry Pi experienced brownouts, making me wonder if the Pico and motors needed to be powered separately, but the brownout issue got resolved without needing to change to separate power supplies.
 
 ## Preparing the SD card (as in LRP3 ch3)
 1. Prepare a Headless Raspberry Pi for a Robot
@@ -497,8 +494,8 @@ sudo reboot
 
 ## Brownout problems while driving in autonomous mode
 
-* While driving along a series of waypoints, the robot was observed to stop spontaneously, pause breifly then restart. This was found to correlate with the red light on the Pi going out, indicating a brownout condition.
-* Maybe the cause is fluctuating computational loads, causing momentary spikes in the power draw. If the Waveshare UPS is not quick enough to respond, the supply voltage to the Pi could drop briefly and cause a brownout. The low voltage warning on the Pi 3B+ triggers when voltage drops below 4.63V even briefly, and typical voltmeters won't show these brief transient dips. The Pi throttles its CPU when this happens, which could cause the path-following code to stall momentarily even if there's no full reset.
+* While driving along a series of waypoints, the robot was observed to stop sporadically, pause breifly then restart. This was found to correlate with the red light on the Pi going out, indicating a brownout condition.
+* Apparently caused by fluctuating computational loads, producing momentary spikes in the power draw. If the Waveshare UPS is not quick enough to respond, the supply voltage to the Pi could drop briefly and cause a brownout. The low voltage warning on the Pi 3B+ triggers when voltage drops below 4.63V even briefly, and typical voltmeters won't show these brief transient dips. The Pi throttles its CPU when this happens, which could cause the path-following code to stall momentarily even if there's no full reset.
     * To explore this, I ran `watch -n 0.5 vcgencmd get_throttled` in an ssh terminal and got the result `throttled=0x50000`, which is both:
         * Bit 16 (`0x10000`) — undervoltage has occurred since last reboot
         * Bit 18 (`0x40000`) — CPU throttling due to temperature has occurred since last reboot
@@ -508,8 +505,8 @@ sudo reboot
     sudo vcgencmd get_throttled  # read and clear
     watch -n 0.2 vcgencmd get_throttled  # faster polling
     ```
-    * Watch to see if it flips to `0x50005` or `0x10001` at the precise time when the robot stops
-    * Put a 100 micro-farad electrolytic cap across the 5V input to the Pi to resolve the problem.
+    * Watch to see if it flips to `0x50005` or `0x10001` at the precise time when the red light on the Pi goes aout and the robot stops
+    * To resolve the problem, put a 100 micro-farad electrolytic cap across the 5V input to the Pi.
 
 ## Summary of wireless protocols used to connect to robot
 #### Bluetooth Low Energy (BLE)
