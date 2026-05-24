@@ -1,9 +1,9 @@
 # topics.py
 """
 Central topic definitions for robot MQTT communication.
-Single Point Of Truth (S.P.O.T.)for all topic names.
-Only some of these topics are actually in use.
-There are no hard-coded topics being used.
+Single Point Of Truth (S.P.O.T.) for all topic names.
+Noy all of these topics are actually in use.
+Dom't use hard-coded topics.
 """
 
 class Topics:
@@ -17,8 +17,7 @@ class Topics:
     IMU_DATA = 'robot/sensor/imu/data'
     
     # Odometry
-    ODOM_POSE = 'robot/odometry/pose'   # Raw odometry (odom frame)
-    POSE = "robot/pose"                 # Localized pose (map frame)
+    ODOM_POSE = 'robot/odometry/pose'   # Raw odometry pose (odom frame)
     INITIAL_POSE = "robot/initialpose"  # Set initial pose
     ODOM_VELOCITY = 'robot/odometry/velocity'
     ODOM_OPTICAL = 'robot/odometry/optical'
@@ -28,18 +27,22 @@ class Topics:
     MOTOR_STATUS = 'robot/motor/status'
     MOTOR_LEFT_ENCODER = 'robot/motor/left/encoder'
     MOTOR_RIGHT_ENCODER = 'robot/motor/right/encoder'
-    
-    # Navigation
-    NAV_GOAL = 'robot/navigation/goal'
-    NAV_PATH = 'robot/navigation/path'
-    NAV_STATUS = 'robot/navigation/status'
-    NAV_CMD_VEL = 'robot/navigation/cmd_vel'
+
+    # Localization
+    CORRECTION = "robot/localization/correction"  # odom correction transform
+    POSE = "robot/localization/pose"    # Localized pose (map frame)
     
     # Mapping
     MAP_GRID = 'robot/map/grid'
     MAP_OCCUPANCY = 'robot/map/occupancy'
     MAP_UPDATE = 'robot/map/update'
     MAP_METADATA = 'robot/map/metadata'
+    
+    # Navigation
+    NAV_GOAL = 'robot/navigation/goal'
+    NAV_PATH = 'robot/navigation/path'
+    NAV_STATUS = 'robot/navigation/status'
+    NAV_CMD_VEL = 'robot/navigation/cmd_vel'
     
     # System
     SYSTEM_HEALTH = 'robot/system/health'
