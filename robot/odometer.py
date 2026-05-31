@@ -34,12 +34,14 @@ for i in range(5, 0, -1):
     time.sleep(1)
 print("Calibrating IMU...")
 otos.calibrateImu()
-otos.setLinearScalar(0.992)
+otos.setLinearScalar(0.964)
 otos.setAngularScalar(0.994)
 
 # Account for OTOS location w/r/t robot center
-offset = qwiic_otos.Pose2D(0.295, 0, 0)
-otos.setOffset(offset)
+offset = qwiic_otos.Pose2D(0.295, 0, 0)  # units: inches
+# offset is negligible and I am not 100% sure if the value will be
+# interpreted in inches or meters, so just ignore it.
+#otos.setOffset(offset)
 
 # Set units for linear and angular measurements.
 # If not set, the default is inches and degrees.
