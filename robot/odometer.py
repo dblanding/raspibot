@@ -34,7 +34,7 @@ for i in range(5, 0, -1):
     time.sleep(1)
 print("Calibrating IMU...")
 otos.calibrateImu()
-otos.setLinearScalar(1.0)
+otos.setLinearScalar(1.008)
 otos.setAngularScalar(0.994)
 
 # Account for OTOS location w/r/t robot center
