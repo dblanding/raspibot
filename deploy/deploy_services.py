@@ -49,7 +49,7 @@ code = files.put(
     src="robot/motor_control.py", dest="robot/motor_control.py")
 
 deploy_service("motor_control","robot/motor_control.py", 
-               False, code.changed)
+               True, code.changed)
 
 code = files.put(
     name="Update run_scan_mtr code",
