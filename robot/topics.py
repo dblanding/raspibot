@@ -23,7 +23,7 @@ class Topics:
     ODOM_OPTICAL = 'robot/odometry/optical'
     
     # Motor Control
-    MOTOR_CMD = 'robot/motor/cmd'  # published by obstacle_avoidance
+    MOTOR_CMD = 'robot/motor/cmd'  # in use
     MOTOR_STATUS = 'robot/motor/status'
     MOTOR_LEFT_ENCODER = 'robot/motor/left/encoder'
     MOTOR_RIGHT_ENCODER = 'robot/motor/right/encoder'
@@ -42,7 +42,9 @@ class Topics:
     NAV_GOAL = 'robot/navigation/goal'
     NAV_PATH = 'robot/navigation/path'
     NAV_STATUS = 'robot/navigation/status'
-    NAV_CMD_VEL = 'robot/navigation/cmd_vel'  # published by path_planner
+    NAV_CMD_VEL = 'robot/navigation/cmd_vel'
+    NAV_SHUTDOWN = 'robot/navigation/shutdown'  # signals obstacle_avoidance to exit
+    EXPLORE_GOAL = 'robot/navigation/explore_goal'  # frontier_explorer → path_follower
     
     # System
     SYSTEM_HEALTH = 'robot/system/health'
